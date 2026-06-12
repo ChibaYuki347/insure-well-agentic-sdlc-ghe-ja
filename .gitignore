@@ -1,0 +1,25 @@
+# Node / React
+node_modules/
+src/frontend/node_modules/
+src/frontend/build/
+
+# Java / Spring Boot
+*.class
+*.jar
+*.war
+*.nar
+target/
+src/backend/target/
+
+# Environment variables
+.env
+.env.*
+
+# Editor / OS
+.DS_Store
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+Thumbs.db

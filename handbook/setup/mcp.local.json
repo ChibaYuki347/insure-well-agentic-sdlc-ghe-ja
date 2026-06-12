@@ -1,0 +1,31 @@
+{
+  "//": "InsureWell ローカル MCP テンプレート — .vscode/mcp.json にコピーして使用します。",
+  "//note": "運営提供の正式な mcp.json がある場合はそちらを優先してください。リモート MCP は使用しません（すべて stdio / npx のローカル起動）。",
+  "//registry": "パッケージは社内プライベートレジストリから取得します。事前に npm のレジストリ設定（.npmrc もしくは `npm config set registry <PRIVATE_NPM_REGISTRY_URL>`）を行ってください。",
+  "inputs": [
+    {
+      "type": "promptString",
+      "id": "github-pat",
+      "description": "GitHub Personal Access Token (scopes: repo, read:org, workflow)",
+      "password": true
+    }
+  ],
+  "servers": {
+    "github": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-github"],
+      "env": {
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "${input:github-pat}"
+      }
+    },
+    "microsoft/playwright-mcp": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["@playwright/mcp@latest"],
+      "env": {
+        "PLAYWRIGHT_BASE_URL": "http://localhost:3000"
+      }
+    }
+  }
+}

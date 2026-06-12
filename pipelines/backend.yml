@@ -1,0 +1,31 @@
+trigger: none
+
+pr:
+  autoCancel: true
+  branches:
+    include:
+      - main
+  paths:
+    include:
+      - src/backend/**
+      - pipelines/backend.yml
+
+pool:
+  vmImage: ubuntu-latest
+
+steps:
+  - checkout: self
+    clean: true
+    fetchDepth: 0
+
+  - task: JavaToolInstaller@0
+    inputs:
+      versionSpec: '17'
+      jdkArchitectureOption: 'x64'
+      jdkSourceOption: 'PreInstalled'
+    displayName: 'Use Java 17'
+
+  - script: |
+      mvn -B clean verify
+    displayName: 'Build and test backend (Spring Boot)'
+    workingDirectory: src/backend
