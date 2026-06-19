@@ -1,0 +1,44 @@
+{
+  "name": "InsureWell (Java 17 + React)",
+  "image": "mcr.microsoft.com/devcontainers/java:1-17-bookworm",
+  "features": {
+    "ghcr.io/devcontainers/features/node:1": {
+      "version": "20"
+    }
+  },
+
+  "forwardPorts": [3000, 8080],
+  "portsAttributes": {
+    "3000": {
+      "label": "InsureWell Frontend (React)",
+      "onAutoForward": "notify"
+    },
+    "8080": {
+      "label": "InsureWell Backend (Spring Boot API)",
+      "onAutoForward": "silent"
+    }
+  },
+
+  "containerEnv": {
+    "DANGEROUSLY_DISABLE_HOST_CHECK": "true",
+    "WDS_SOCKET_PORT": "0"
+  },
+
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "GitHub.copilot",
+        "GitHub.copilot-chat",
+        "GitHub.vscode-pull-request-github",
+        "vscjava.vscode-java-pack",
+        "vmware.vscode-boot-dev-pack",
+        "dsznajder.es7-react-js-snippets",
+        "ms-playwright.playwright"
+      ]
+    }
+  },
+
+  "postCreateCommand": "cd src/frontend && npm install && cd ../backend && mvn -q -B -DskipTests dependency:go-offline || true",
+
+  "remoteUser": "vscode"
+}

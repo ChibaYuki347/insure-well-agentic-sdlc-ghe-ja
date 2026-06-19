@@ -21,6 +21,9 @@
 - **Dry-run the local MCP** (`.vscode/mcp.json` via `npx` from the private registry) — the #1 time sink.
 - **Optional Prerequisites Office Hours — 10:00–10:30** for anyone still blocked.
 
+> 💡 To avoid local installs, **GitHub Codespaces** is available (no install, identical env).
+> MCP still runs locally, same as on a laptop. See [guides/8.Codespaces.ja.md](guides/8.Codespaces.ja.md).
+
 ---
 
 | Time | Phase | What Happens | What You Walk Away With |

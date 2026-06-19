@@ -84,7 +84,11 @@ npm --version         # 9+
 
 ## 3. Clone, Build & Run the App
 
-> **Why this step?** You need the application running on your laptop so agents can interact with it and so you can see the results of generated code.
+> **Why this step?** You need the application running so agents can interact with it and so you can see the results of generated code.
+
+> 🚀 **Prefer no local install?** Use **GitHub Codespaces** — Java 17, Maven, Node, and the
+> required VS Code extensions are provisioned automatically. See the
+> [Codespaces guide (JA)](guides/8.Codespaces.ja.md). Then skip to `./run.sh` below.
 
 ### Quick Start
 

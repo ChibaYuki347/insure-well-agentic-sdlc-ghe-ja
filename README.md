@@ -10,6 +10,9 @@
 > - 概念プライマー: [handbook/guides/0.Concepts-Primer.ja.md](handbook/guides/0.Concepts-Primer.ja.md)
 > - 事前課題: [handbook/setup/1.Prerequisites.ja.md](handbook/setup/1.Prerequisites.ja.md)
 > - ローカル MCP 設定: [handbook/setup/3.MCP-Local-Setup.ja.md](handbook/setup/3.MCP-Local-Setup.ja.md)
+> - MCP フォールバック（MCPなしで進める）: [handbook/setup/4.MCP-Fallback.ja.md](handbook/setup/4.MCP-Fallback.ja.md)
+> - 事前作成Issue: [docs/seed-issues.md](docs/seed-issues.md) / [scripts/create-seed-issues.sh](scripts/create-seed-issues.sh)
+> - Codespaces で参加: [handbook/guides/8.Codespaces.ja.md](handbook/guides/8.Codespaces.ja.md)
 > - カスタムエージェント演習: [handbook/guides/7.Custom-Agents-Exercise.ja.md](handbook/guides/7.Custom-Agents-Exercise.ja.md)
 > - ⚠️ MCP はローカル限定（リモート MCP 禁止）。
 
@@ -66,6 +69,24 @@ InsureWell/
 ---
 
 ## Setup
+
+### Option A — GitHub Codespaces (no local install)
+
+Open the repo on GitHub → **`< > Code`** → **Codespaces** → **Create codespace on main**.
+Java 17, Maven, Node 20, and the required VS Code extensions are provisioned automatically
+(see [`.devcontainer/devcontainer.json`](.devcontainer/devcontainer.json)). Then:
+
+```bash
+cd src
+chmod +x run.sh
+./run.sh
+```
+
+Open the forwarded **port 3000** from the **PORTS** tab. The frontend reaches the backend
+through a dev-server proxy (`/api` → `:8080`), so only port 3000 is needed.
+See [Codespaces guide (JA)](handbook/guides/8.Codespaces.ja.md).
+
+### Option B — Local
 
 ```bash
 # 1. Clone the repository

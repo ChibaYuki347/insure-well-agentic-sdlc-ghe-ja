@@ -5,7 +5,13 @@ import Navigation from './components/Navigation';
 import Dashboard from './components/Dashboard';
 import Claims from './components/Claims';
 
-const API_BASE_URL = 'http://localhost:8080/api';
+// API base URL.
+// - Local dev & GitHub Codespaces: leave unset to use the relative "/api" path,
+//   which the CRA dev server proxies to the Spring Boot backend (see "proxy" in
+//   package.json). This keeps everything on a single origin, so it works in
+//   Codespaces (forwarded HTTPS) without depending on a second forwarded port.
+// - Override with REACT_APP_API_BASE_URL if you need to point at a different host.
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || '/api';
 
 function App() {
   const [currentPage, setCurrentPage] = useState('dashboard');

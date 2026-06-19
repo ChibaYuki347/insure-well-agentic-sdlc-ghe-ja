@@ -35,6 +35,7 @@
 - [ ] **正式な `.vscode/mcp.json`** と **社内プライベートレジストリ URL／認証手順**（運営担当提供）を入手済み。
       未入手ならテンプレ [setup/mcp.local.json](setup/mcp.local.json) で代替。
 - [ ] **バックアップ資産**（§3）を準備済み。
+- [ ] **GitHub Codespaces** の利用可否を運営／管理者に確認済み（ローカル構築で詰まった人の切り札）。利用可なら一度作成して動作確認。[guides/8.Codespaces.ja.md](guides/8.Codespaces.ja.md)
 - [ ] 会場のネットワーク/プロキシで **社内プライベートレジストリへの到達**と **github.com への到達**を実機確認済み。
 - [ ] 当日扱う **1機能（推奨: 認証）** の Issue 文面（タイトル・説明・受け入れ条件）を確定済み。
 - [ ] 投影用に概念プライマーの要点（BRD とは／MCP の原理・種類・スコープ）を手元に用意。
@@ -46,16 +47,21 @@
 直線的な依存（要件→実装→レビュー→…）で前段が失敗しても先に進めるよう、各段の**完成済みの状態**を
 あらかじめ用意しておきます。これが当日の最大の安全網です。
 
+> 🧰 **MCP が使えない時の代替経路は専用ページにまとめています:** [setup/4.MCP-Fallback.ja.md](setup/4.MCP-Fallback.ja.md)。
+> MCP を使うのは「Issue 作成」と「Playwright 対話操作」だけで、どちらも非MCPの代替があります。
+
 | 資産 | 中身 | いつ使うか |
 | --- | --- | --- |
-| **事前作成済み Issue 群** | バックログの主要 Issue を repo に作成済み | MCP/同期で Issue 作成が詰まったら、ここから着手 |
+| **事前作成 Issue（具体物）** | [docs/seed-issues.md](../docs/seed-issues.md) の文面＋一括スクリプト [scripts/create-seed-issues.sh](../scripts/create-seed-issues.sh)（`gh`・repo 引数化）| MCP/同期で Issue 作成が詰まったら、これで即作成 |
+| **同梱済み `.vscode/mcp.json`** | clone/Codespace 時点で配置済み（PAT は起動時入力）| 設定手順を省ける。運営提供版があれば上書き |
 | **参照ブランチ `reference/auth-feature`** | 認証機能が実装済みの動く feature ブランチ | クラウドエージェントの PR が出ない/壊れている時に pull |
 | **参照 PR（マージ前）** | レビュー対象として使える PR | コードレビュー/GHAS/QA の各デモを単独で見せたい時 |
-| **テスト雛形** | 動く Playwright/JUnit のサンプル | QA フェーズが詰まった時の見せ札 |
+| **テスト雛形 / 直接実行** | `src/frontend/tests/` ＋ `npm run test:e2e` 系 | Playwright MCP が不調でも UI 検証を成立させる |
 | **スクリーンショット集** | `images/` の各工程画像 | デモが動かない時に「あるべき結果」を見せる |
 
 > ポイント: **各フェーズは独立して“見せられる”状態**にしておく。前段の成果が無くても、
 > 参照ブランチ/PR から始めれば、そのフェーズのデモは成立する。
+> Issue 作成・委任・コーディング・レビュー・GHAS は **MCP 非依存**でも回せる（[4.MCP-Fallback.ja.md](setup/4.MCP-Fallback.ja.md)）。
 
 ---
 
@@ -164,14 +170,15 @@
 
 | 失敗箇所 | すぐ取れる代替 |
 | --- | --- |
-| MCP が繋がらない | Issue は **github.com UI で手動作成**／委任は **github.com で Copilot に割り当て**（MCP 不要）|
-| 社内レジストリから `npx` できない | `.npmrc`・プロキシ・認証を現地サポートが確認。直らなければ Issue 作成は UI で続行 |
+| 起動しない人がいる | **GitHub Codespaces** に切り替え（Java/Node/拡張がコンテナ同梱・全員同一環境）。[guides/8.Codespaces.ja.md](guides/8.Codespaces.ja.md) |
+| MCP が繋がらない | [setup/4.MCP-Fallback.ja.md](setup/4.MCP-Fallback.ja.md) へ。Issue は **`gh`/Web UI**、委任は **github.com で割り当て**（MCP 不要）|
+| 社内レジストリから `npx` できない | `.npmrc`・プロキシ・認証を現地サポートが確認。直らなければ Issue 作成は `gh`/UI で続行 |
 | BRD/HLD 出力が崩れる | 確定済み [docs/BRD.md](../docs/BRD.md) / [docs/InsureWell_HLD.md](../docs/InsureWell_HLD.md) を使用 |
-| Issue 作成が失敗 | **事前作成済み Issue 群**（§3）から着手 |
+| Issue 作成が失敗 | **`scripts/create-seed-issues.sh --repo <owner>/<name>`** で一括作成（文面: [docs/seed-issues.md](../docs/seed-issues.md)）|
 | クラウド PR が出ない/壊れ | `reference/auth-feature` **参照ブランチ**を pull してレビュー以降を体験 |
 | CodeQL/CI が遅い・落ちる | 待たない。**参照 PR**でレビュー UI を投影。CI 検証は宿題（ADO は任意） |
 | GHAS アラートが無い | 講師リポジトリ/参照 PR の既知アラートを投影 |
-| Playwright が動かない | `npx playwright install chromium`／**テスト雛形**を提示 |
+| Playwright(MCP) が動かない | `npx playwright install chromium`／**`npm run test:e2e` を直接実行**（[4.MCP-Fallback.ja.md](setup/4.MCP-Fallback.ja.md) §4）|
 | 全体が押している | 巻き対象は GHAS と QA の解説尺。**委任(昼前)** と **概念プライマー**は死守 |
 
 ---
@@ -201,6 +208,9 @@
 - 概念: [guides/0.Concepts-Primer.ja.md](guides/0.Concepts-Primer.ja.md)
 - 事前課題: [setup/1.Prerequisites.ja.md](setup/1.Prerequisites.ja.md)
 - ローカル MCP: [setup/3.MCP-Local-Setup.ja.md](setup/3.MCP-Local-Setup.ja.md) / [setup/mcp.local.json](setup/mcp.local.json)
+- **MCP フォールバック: [setup/4.MCP-Fallback.ja.md](setup/4.MCP-Fallback.ja.md)**
+- **事前作成Issue: [../docs/seed-issues.md](../docs/seed-issues.md) / [../scripts/create-seed-issues.sh](../scripts/create-seed-issues.sh)**
+- Codespaces: [guides/8.Codespaces.ja.md](guides/8.Codespaces.ja.md)
 - デモ手順: [guides/5.Demo-Flow.md](guides/5.Demo-Flow.md)
 - Playwright: [guides/6.playwright-mcp-setup-working.md](guides/6.playwright-mcp-setup-working.md)
 - カスタムエージェント演習: [guides/7.Custom-Agents-Exercise.ja.md](guides/7.Custom-Agents-Exercise.ja.md)

@@ -18,7 +18,10 @@ src/backend/target/
 # Editor / OS
 .DS_Store
 .idea/
-.vscode/
+.vscode/*
+# Track the shared MCP config so participants get it on clone / Codespaces.
+# The PAT is supplied via a runtime input prompt, so no secret is stored here.
+!.vscode/mcp.json
 *.swp
 *.swo
 *~

@@ -21,6 +21,9 @@
 - **ローカル MCP（`.vscode/mcp.json` / 社内プライベートレジストリ経由の `npx`）を一度試しておく**（詰まりやすいポイント）。
 - **任意: 前提 Office Hours — 10:00〜10:30**（まだ詰まっている方向けのドロップイン対応）。
 
+> 💡 ローカル構築を避けたい場合は **GitHub Codespaces**（インストール不要・同一環境）も利用可能です。
+> [setup/3.MCP-Local-Setup.ja.md](setup/3.MCP-Local-Setup.ja.md) と同様にMCPはローカル動作。手順: [guides/8.Codespaces.ja.md](guides/8.Codespaces.ja.md)。
+
 ---
 
 | 時間 | フェーズ | 内容 | 得られるもの |
