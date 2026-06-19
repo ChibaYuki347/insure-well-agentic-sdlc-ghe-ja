@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import '../styles/Dashboard.css';
+import { policyStatusLabel, claimStatusLabel } from '../i18n/labels';
 
 function Dashboard({ policies, claims, onRefresh, apiBase }) {
   const [selectedPolicyId, setSelectedPolicyId] = useState(policies[0]?.id || null);
@@ -62,7 +63,7 @@ function Dashboard({ policies, claims, onRefresh, apiBase }) {
     e.preventDefault();
 
     if (!formData.holderName || !formData.planName || !formData.coverageAmount) {
-      setError('All fields are required');
+      setError('すべての項目が必須です');
       return;
     }
 
@@ -75,17 +76,17 @@ function Dashboard({ policies, claims, onRefresh, apiBase }) {
       setShowPolicyModal(false);
       onRefresh();
     } catch (err) {
-      setError(err.response?.data?.error || 'Failed to save policy');
+      setError(err.response?.data?.error || 'ポリシーの保存に失敗しました');
     }
   };
 
   const handleDeletePolicy = async (id, name) => {
-    if (window.confirm(`Delete policy for "${name}"? All claims will be deleted.`)) {
+    if (window.confirm(`「${name}」のポリシーを削除しますか？関連する請求もすべて削除されます。`)) {
       try {
         await axios.delete(`${apiBase}/policies/${id}`);
         onRefresh();
       } catch (err) {
-        alert('Failed to delete policy');
+        alert('ポリシーの削除に失敗しました');
       }
     }
   };
@@ -94,11 +95,11 @@ function Dashboard({ policies, claims, onRefresh, apiBase }) {
     <div className="dashboard-container" data-testid="dashboard">
       <div className="page-header">
         <div>
-          <h1>Policy Dashboard</h1>
-          <p data-testid="policy-count">{policies.length} polic{policies.length === 1 ? 'y' : 'ies'} on your account</p>
+          <h1>ポリシー ダッシュボード</h1>
+          <p data-testid="policy-count">アカウントのポリシー: {policies.length} 件</p>
         </div>
         <button className="btn btn-primary" onClick={openAddModal} data-testid="add-policy-btn">
-          + Add Policy
+          ＋ ポリシー追加
         </button>
       </div>
 
@@ -138,27 +139,27 @@ function Dashboard({ policies, claims, onRefresh, apiBase }) {
             <div className="policy-header">
               <div>
                 <p className="policy-plan">{selectedPolicy.planName}</p>
-                <p className="policy-id">Policy ID: {selectedPolicy.id}</p>
+                <p className="policy-id">ポリシーID: {selectedPolicy.id}</p>
               </div>
               <span className={`badge ${selectedPolicy.status === 'active' ? 'success' : 'neutral'}`}>
-                {selectedPolicy.status.toUpperCase()}
+                {policyStatusLabel(selectedPolicy.status)}
               </span>
             </div>
             <div className="policy-details">
               <div className="detail">
-                <span className="label">Coverage Amount</span>
+                <span className="label">補償金額</span>
                 <span className="value">${selectedPolicy.coverageAmount.toLocaleString()}</span>
               </div>
               <div className="detail">
-                <span className="label">Policy Holder</span>
+                <span className="label">契約者</span>
                 <span className="value">{selectedPolicy.holderName}</span>
               </div>
               <div className="detail">
-                <span className="label">Start Date</span>
+                <span className="label">開始日</span>
                 <span className="value">{selectedPolicy.startDate}</span>
               </div>
               <div className="detail">
-                <span className="label">End Date</span>
+                <span className="label">終了日</span>
                 <span className="value">{selectedPolicy.endDate}</span>
               </div>
             </div>
@@ -167,35 +168,35 @@ function Dashboard({ policies, claims, onRefresh, apiBase }) {
           <div className="stats-row" data-testid="stats-row">
             <div className="stat-card" data-testid="stat-total-claims">
               <span className="stat-value">{policyClaims.length}</span>
-              <span className="stat-label">Total Claims</span>
+              <span className="stat-label">請求件数</span>
             </div>
             <div className="stat-card" data-testid="stat-pending">
               <span className="stat-value warning">{pendingCount}</span>
-              <span className="stat-label">Pending</span>
+              <span className="stat-label">審査中</span>
             </div>
             <div className="stat-card" data-testid="stat-approved">
               <span className="stat-value success">{approvedCount}</span>
-              <span className="stat-label">Approved</span>
+              <span className="stat-label">承認済み</span>
             </div>
             <div className="stat-card" data-testid="stat-total-amount">
               <span className="stat-value">${totalClaimed.toLocaleString()}</span>
-              <span className="stat-label">Total Claimed</span>
+              <span className="stat-label">請求総額</span>
             </div>
           </div>
 
           <div className="section">
-            <h2>Recent Claims</h2>
+            <h2>最近の請求</h2>
             {policyClaims.length === 0 ? (
-              <p className="empty">No claims yet</p>
+              <p className="empty">請求はまだありません</p>
             ) : (
               <table className="claims-table" data-testid="recent-claims-table">
                 <thead>
                   <tr>
-                    <th>Claim ID</th>
-                    <th>Description</th>
-                    <th>Amount</th>
-                    <th>Status</th>
-                    <th>Submitted</th>
+                    <th>請求ID</th>
+                    <th>内容</th>
+                    <th>金額</th>
+                    <th>ステータス</th>
+                    <th>申請日</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -206,10 +207,10 @@ function Dashboard({ policies, claims, onRefresh, apiBase }) {
                       <td>${claim.amount.toLocaleString()}</td>
                       <td>
                         <span className={`status-badge ${claim.status.toLowerCase()}`}>
-                          {claim.status}
+                          {claimStatusLabel(claim.status)}
                         </span>
                       </td>
-                      <td>{new Date(claim.submittedAt).toLocaleDateString()}</td>
+                      <td>{new Date(claim.submittedAt).toLocaleDateString('ja-JP')}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -222,11 +223,11 @@ function Dashboard({ policies, claims, onRefresh, apiBase }) {
       {showPolicyModal && (
         <div className="modal-overlay" onClick={() => setShowPolicyModal(false)} data-testid="modal-overlay">
           <div className="modal-content" onClick={e => e.stopPropagation()} data-testid="policy-modal">
-            <h2>{modalMode === 'add' ? 'Add Policy' : 'Edit Policy'}</h2>
+            <h2>{modalMode === 'add' ? 'ポリシー追加' : 'ポリシー編集'}</h2>
             {error && <div className="alert alert-error" data-testid="policy-form-error">{error}</div>}
             <form onSubmit={handleSavePolicy} data-testid="policy-form">
               <div className="form-group">
-                <label>Holder Name</label>
+                <label>契約者名</label>
                 <input
                   type="text"
                   name="holderName"
@@ -237,7 +238,7 @@ function Dashboard({ policies, claims, onRefresh, apiBase }) {
                 />
               </div>
               <div className="form-group">
-                <label>Plan Name</label>
+                <label>プラン名</label>
                 <input
                   type="text"
                   name="planName"
@@ -248,7 +249,7 @@ function Dashboard({ policies, claims, onRefresh, apiBase }) {
                 />
               </div>
               <div className="form-group">
-                <label>Coverage Amount</label>
+                <label>補償金額</label>
                 <input
                   type="number"
                   name="coverageAmount"
@@ -259,19 +260,19 @@ function Dashboard({ policies, claims, onRefresh, apiBase }) {
                 />
               </div>
               <div className="form-group">
-                <label>Status</label>
+                <label>ステータス</label>
                 <select
                   name="status"
                   value={formData.status}
                   onChange={handleInputChange}
                   data-testid="select-policy-status"
                 >
-                  <option value="active">Active</option>
-                  <option value="inactive">Inactive</option>
+                  <option value="active">有効</option>
+                  <option value="inactive">無効</option>
                 </select>
               </div>
               <div className="form-group">
-                <label>Start Date</label>
+                <label>開始日</label>
                 <input
                   type="text"
                   name="startDate"
@@ -283,7 +284,7 @@ function Dashboard({ policies, claims, onRefresh, apiBase }) {
                 />
               </div>
               <div className="form-group">
-                <label>End Date</label>
+                <label>終了日</label>
                 <input
                   type="text"
                   name="endDate"
@@ -296,10 +297,10 @@ function Dashboard({ policies, claims, onRefresh, apiBase }) {
               </div>
               <div className="form-actions">
                 <button type="button" className="btn btn-secondary" onClick={() => setShowPolicyModal(false)} data-testid="cancel-policy-btn">
-                  Cancel
+                  キャンセル
                 </button>
                 <button type="submit" className="btn btn-primary" data-testid="save-policy-btn">
-                  {modalMode === 'add' ? 'Add Policy' : 'Save Changes'}
+                  {modalMode === 'add' ? 'ポリシー追加' : '変更を保存'}
                 </button>
               </div>
             </form>

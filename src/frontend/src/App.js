@@ -35,7 +35,7 @@ function App() {
       setClaims(claimsRes.data);
       setError(null);
     } catch (err) {
-      setError('Failed to load data from backend. Ensure Spring Boot server is running on port 8080.');
+      setError('バックエンドからデータを取得できませんでした。Spring Boot サーバーがポート 8080 で起動しているか確認してください。');
       console.error(err);
     } finally {
       setLoading(false);
@@ -51,7 +51,7 @@ function App() {
       <div className="app">
         <Navigation currentPage={currentPage} setCurrentPage={setCurrentPage} />
         <main className="main-content">
-          <div className="loader">Loading...</div>
+          <div className="loader">読み込み中…</div>
         </main>
       </div>
     );

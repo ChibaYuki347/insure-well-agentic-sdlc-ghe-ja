@@ -14,7 +14,7 @@ function Navigation({ currentPage, setCurrentPage }) {
             onClick={() => setCurrentPage('dashboard')}
             data-testid="nav-dashboard"
           >
-            Dashboard
+            ダッシュボード
           </button>
         </li>
         <li>
@@ -23,7 +23,7 @@ function Navigation({ currentPage, setCurrentPage }) {
             onClick={() => setCurrentPage('claims')}
             data-testid="nav-claims"
           >
-            Claims
+            請求
           </button>
         </li>
       </ul>
