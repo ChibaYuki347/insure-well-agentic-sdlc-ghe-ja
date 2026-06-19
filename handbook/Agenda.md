@@ -32,7 +32,7 @@
 | 10:30–10:45 | **Kickoff** | Environment smoke-check (run the verify script; quick fixes) | Confirmed-ready environment |
 | 10:45–11:20 | **Concept Primer** | Agentic SDLC overview / **what is a BRD** / **what is MCP (principles, kinds, scopes)** | Shared "what, why, and how it works" |
 | 11:20–11:45 | **MCP (local) & Agents** | Configure local MCP in `.vscode/mcp.json`; intro to custom agents and how to invoke them | Copilot connected to GitHub; agents ready |
-| 11:45–12:20 | **Requirements & Design** | HLD agent → BRD agent → prioritized backlog | Architecture overview + a prioritized backlog |
+| 11:45–12:20 | **Requirements & Design** | HLD agent → BRD agent → prioritized backlog (no BRD yet? optionally create one from scratch with `0.SDLC BRD Author`) | Architecture overview + a prioritized backlog |
 | 12:20–12:35 | **Create Issues** | File GitHub Issues from the backlog; **pick ONE feature for the day** | Backlog in GitHub; scope fixed to one feature |
 | 12:35–12:45 | **Delegate to Cloud Agent** | Kick off the cloud coding agent on the chosen feature | Agent starts working asynchronously |
 | 12:45–13:30 | **Lunch** | Lunch break — the cloud agent keeps running in the background | — |
@@ -53,6 +53,9 @@
   it is **out of the core session** and offered as optional follow-up work. See
   [2.Azure-DevOps-Setup.md](setup/2.Azure-DevOps-Setup.md).
 - **Continue the custom-agents exercise** — the environment stays available afterward.
+- **Create the BRD from scratch** — by default the workshop uses the ready-made
+  `docs/BRD.md`, but you can optionally author one from a business idea via the
+  interview-style `0.SDLC BRD Author` agent. See [guides/9.BRD-From-Scratch.ja.md](guides/9.BRD-From-Scratch.ja.md).
 
 ---
 

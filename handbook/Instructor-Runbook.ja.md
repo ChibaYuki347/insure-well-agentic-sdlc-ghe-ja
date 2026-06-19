@@ -106,6 +106,10 @@
 - 🎬 [guides/5.Demo-Flow.md](guides/5.Demo-Flow.md) Step1(HLD)→Step2(BRD)。HLD で設計、BRD でギャップ→バックログ。
 - 🙌 各自エージェントを実行し、出力を眺める（完全一致でなくてOK）。
 - 💬 「**入力（要件）が良ければ実装は安定**。だから要件にいちばん時間をかける」。
+- 🆕 **任意: BRD をゼロから作る。** 時間に余裕がある回や「要件作成も体験したい」場合は、対話形式の
+  `@0.SDLC BRD Author` にビジネスアイデア（[docs/brd-brief.example.md](../docs/brd-brief.example.md)）を渡して
+  `docs/BRD.md` を新規作成 → 以降は通常フロー。手順 [guides/9.BRD-From-Scratch.ja.md](guides/9.BRD-From-Scratch.ja.md)。
+  ※ 本編の時間が押している場合は**既定の用意済み BRD を使い**、これは宿題に回す。
 - ⚠️ エージェント出力が乱れたら、**確定済みの [docs/BRD.md](../docs/BRD.md)** をそのまま使って次へ。
 
 ### 12:20〜12:35 ｜ Issue 作成（1機能に絞る）
@@ -206,6 +210,7 @@
 
 - アジェンダ: [Agenda.ja.md](Agenda.ja.md) / [Agenda.md](Agenda.md) / [改訂理由](Agenda-Revision.md)
 - 概念: [guides/0.Concepts-Primer.ja.md](guides/0.Concepts-Primer.ja.md)
+- **BRD をゼロから作る（任意）: [guides/9.BRD-From-Scratch.ja.md](guides/9.BRD-From-Scratch.ja.md) / [../docs/brd-brief.example.md](../docs/brd-brief.example.md)**
 - 事前課題: [setup/1.Prerequisites.ja.md](setup/1.Prerequisites.ja.md)
 - ローカル MCP: [setup/3.MCP-Local-Setup.ja.md](setup/3.MCP-Local-Setup.ja.md) / [setup/mcp.local.json](setup/mcp.local.json)
 - **MCP フォールバック: [setup/4.MCP-Fallback.ja.md](setup/4.MCP-Fallback.ja.md)**

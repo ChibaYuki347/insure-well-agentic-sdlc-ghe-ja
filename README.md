@@ -8,6 +8,7 @@
 > **日本語セッション資料（10:30〜16:30・対面ハンズオン・1日）:**
 > - 進行台本: [handbook/Instructor-Runbook.ja.md](handbook/Instructor-Runbook.ja.md)
 > - 概念プライマー: [handbook/guides/0.Concepts-Primer.ja.md](handbook/guides/0.Concepts-Primer.ja.md)
+> - BRD をゼロから作る（任意）: [handbook/guides/9.BRD-From-Scratch.ja.md](handbook/guides/9.BRD-From-Scratch.ja.md)
 > - 事前課題: [handbook/setup/1.Prerequisites.ja.md](handbook/setup/1.Prerequisites.ja.md)
 > - ローカル MCP 設定: [handbook/setup/3.MCP-Local-Setup.ja.md](handbook/setup/3.MCP-Local-Setup.ja.md)
 > - MCP フォールバック（MCPなしで進める）: [handbook/setup/4.MCP-Fallback.ja.md](handbook/setup/4.MCP-Fallback.ja.md)

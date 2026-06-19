@@ -226,6 +226,7 @@ Choose the right mode depending on how you want to work:
 
 | Agent | Role |
 |---|---|
+| `0.SDLC BRD Author` | *(optional, interview-first)* Create a BRD from a business idea |
 | `1.SDLC BRD Agent` | Business requirements — BRD, epics, features |
 | `2.SDLC HLD Agent` | High-level design — architecture, component boundaries, data flow |
 | `5.SDLC Dev Agent` | Feature implementation — React + Spring Boot |
