@@ -22,7 +22,7 @@ This script will:
 
 ```bash
 cd src/backend
-mvn spring-boot:run
+./mvnw spring-boot:run
 ```
 
 Wait for the log:

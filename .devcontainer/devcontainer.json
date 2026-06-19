@@ -2,6 +2,11 @@
   "name": "InsureWell (Java 17 + React)",
   "image": "mcr.microsoft.com/devcontainers/java:1-17-bookworm",
   "features": {
+    "ghcr.io/devcontainers/features/java:1": {
+      "version": "none",
+      "installMaven": "true",
+      "mavenVersion": "3.9.9"
+    },
     "ghcr.io/devcontainers/features/node:1": {
       "version": "20"
     }
@@ -38,7 +43,7 @@
     }
   },
 
-  "postCreateCommand": "cd src/frontend && npm install && cd ../backend && mvn -q -B -DskipTests dependency:go-offline || true",
+  "postCreateCommand": "cd src/frontend && npm install && cd ../backend && ./mvnw -q -B -DskipTests dependency:go-offline || true",
 
   "remoteUser": "vscode"
 }

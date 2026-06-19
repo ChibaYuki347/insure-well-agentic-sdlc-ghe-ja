@@ -63,7 +63,7 @@ cd src
 ```bash
 # Terminal 1 - Backend
 cd src/backend
-mvn spring-boot:run   # Runs on http://localhost:8080/api
+./mvnw spring-boot:run   # Runs on http://localhost:8080/api
 
 # Terminal 2 - Frontend
 cd src/frontend

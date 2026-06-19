@@ -11,10 +11,18 @@ FRONTEND_DIR="$SCRIPT_DIR/frontend"
 
 echo "🚀 Starting InsureWell Fullstack..."
 
+# Prefer the Maven Wrapper (./mvnw) so a system Maven install is not required
+# (e.g. in GitHub Codespaces). Fall back to a system `mvn` if the wrapper is absent.
+if [ -x "$BACKEND_DIR/mvnw" ]; then
+	MVN="$BACKEND_DIR/mvnw"
+else
+	MVN="mvn"
+fi
+
 # Start backend in background
-echo "📦 Starting Spring Boot backend..."
+echo "📦 Starting Spring Boot backend (using: $MVN)..."
 cd "$BACKEND_DIR"
-mvn spring-boot:run &
+"$MVN" spring-boot:run &
 BACKEND_PID=$!
 echo "✅ Backend started (PID: $BACKEND_PID)"
 

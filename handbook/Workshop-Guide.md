@@ -110,7 +110,7 @@ Open **http://localhost:3000** in your browser. You should see the InsureWell da
 ```bash
 # Terminal 1 — Backend
 cd src/backend
-mvn spring-boot:run
+./mvnw spring-boot:run
 
 # Terminal 2 — Frontend
 cd src/frontend

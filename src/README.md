@@ -121,10 +121,10 @@ Backend API: **http://localhost:8080/api**
 cd src/backend
 
 # Build with Maven
-mvn clean package
+./mvnw clean package
 
 # Run the application
-mvn spring-boot:run
+./mvnw spring-boot:run
 ```
 
 The backend will start on **http://localhost:8080/api**.
