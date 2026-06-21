@@ -13,6 +13,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -71,11 +72,11 @@ public class SecurityConfig {
       .cors(cors -> cors.configurationSource(corsConfigurationSource()))
       .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
       .authorizeHttpRequests(auth -> auth
-        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-        .requestMatchers("/api/auth/**").permitAll()
-        .requestMatchers("/api/health").permitAll()
-        .requestMatchers("/h2-console/**").permitAll()
-        .requestMatchers("/api/**").authenticated()
+        .requestMatchers(AntPathRequestMatcher.antMatcher(HttpMethod.OPTIONS, "/**")).permitAll()
+        .requestMatchers(AntPathRequestMatcher.antMatcher("/api/auth/**")).permitAll()
+        .requestMatchers(AntPathRequestMatcher.antMatcher("/api/health")).permitAll()
+        .requestMatchers(AntPathRequestMatcher.antMatcher("/h2-console/**")).permitAll()
+        .requestMatchers(AntPathRequestMatcher.antMatcher("/api/**")).authenticated()
         .anyRequest().permitAll()
       )
       .headers(headers -> headers.frameOptions(fo -> fo.disable()))

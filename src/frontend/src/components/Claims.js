@@ -102,7 +102,7 @@ function Claims({ policies, claims, onRefresh, apiBase }) {
         <div className="claim-form-card">
           <h2>新規請求の申請</h2>
           {error && <div className="alert alert-error" data-testid="claim-form-error">{error}</div>}
-          <form onSubmit={handleSubmitClaim} data-testid="claim-form">
+          <form onSubmit={handleSubmitClaim} noValidate data-testid="claim-form">
             <div className="form-row">
               <div className="form-group">
                 <label>ポリシー</label>
