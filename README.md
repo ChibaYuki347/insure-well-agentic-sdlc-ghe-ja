@@ -7,12 +7,16 @@
 >
 > **日本語セッション資料（10:30〜16:30・対面ハンズオン・1日）:**
 > - 進行台本: [handbook/Instructor-Runbook.ja.md](handbook/Instructor-Runbook.ja.md)
+> - **主催者/管理者 事前準備（最重要）: [handbook/setup/0.Organizer-Preflight.ja.md](handbook/setup/0.Organizer-Preflight.ja.md)**
 > - 概念プライマー: [handbook/guides/0.Concepts-Primer.ja.md](handbook/guides/0.Concepts-Primer.ja.md)
 > - BRD をゼロから作る（任意）: [handbook/guides/9.BRD-From-Scratch.ja.md](handbook/guides/9.BRD-From-Scratch.ja.md)
 > - 事前課題: [handbook/setup/1.Prerequisites.ja.md](handbook/setup/1.Prerequisites.ja.md)
 > - ローカル MCP 設定: [handbook/setup/3.MCP-Local-Setup.ja.md](handbook/setup/3.MCP-Local-Setup.ja.md)
 > - MCP フォールバック（MCPなしで進める）: [handbook/setup/4.MCP-Fallback.ja.md](handbook/setup/4.MCP-Fallback.ja.md)
 > - 事前作成Issue: [docs/seed-issues.md](docs/seed-issues.md) / [scripts/create-seed-issues.sh](scripts/create-seed-issues.sh)
+> - **エージェント導線＆完了の定義: [handbook/guides/10.Agent-Flow-and-DoD.ja.md](handbook/guides/10.Agent-Flow-and-DoD.ja.md)**
+> - **GHAS パイプライン: [handbook/guides/11.GHAS-Pipeline.ja.md](handbook/guides/11.GHAS-Pipeline.ja.md)**
+> - **QA 戦略（Playwright×MCP×人/AI）: [handbook/guides/12.QA-Strategy.ja.md](handbook/guides/12.QA-Strategy.ja.md)**
 > - Codespaces で参加: [handbook/guides/8.Codespaces.ja.md](handbook/guides/8.Codespaces.ja.md)
 > - カスタムエージェント演習: [handbook/guides/7.Custom-Agents-Exercise.ja.md](handbook/guides/7.Custom-Agents-Exercise.ja.md)
 > - ⚠️ MCP はローカル限定（リモート MCP 禁止）。

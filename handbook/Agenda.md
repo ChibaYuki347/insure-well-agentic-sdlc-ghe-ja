@@ -20,6 +20,9 @@
 - Clone the repo and run the app once locally so you know it works.
 - **Dry-run the local MCP** (`.vscode/mcp.json` via `npx` from the private registry) — the #1 time sink.
 - **Optional Prerequisites Office Hours — 10:00–10:30** for anyone still blocked.
+- **(Organizers)** Work through the [Organizer/Admin pre-flight](setup/0.Organizer-Preflight.ja.md):
+  org-owned repo, Copilot/coding-agent/code-review, GHAS, and **org-scoped PAT approval**
+  (admin approval has lead time and is the #1 day-of blocker).
 
 > 💡 To avoid local installs, **GitHub Codespaces** is available (no install, identical env).
 > MCP still runs locally, same as on a laptop. See [guides/8.Codespaces.ja.md](guides/8.Codespaces.ja.md).

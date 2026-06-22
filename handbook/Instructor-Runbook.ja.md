@@ -30,6 +30,12 @@
 
 ## 2. 前日までの講師側チェックリスト
 
+> ⚠️ **最重要:** 環境・権限（Org 配下リポジトリ／Copilot・GHAS 有効化／**Org スコープ PAT の管理者承認**）は
+> 当日いちばん詰まる箇所です。**[setup/0.Organizer-Preflight.ja.md](setup/0.Organizer-Preflight.ja.md)（主催者/管理者
+> 事前準備チェックリスト）を前日までに必ず消化**してください。特に **PAT 承認待ち**は進行を止めるので、
+> 保険として**事前に Issue を中央作成**（`scripts/create-seed-issues.sh`）しておきます。
+
+- [ ] **[主催者/管理者 事前準備](setup/0.Organizer-Preflight.ja.md) を完了**（Org リポジトリ／Copilot コーディングエージェント・コードレビュー／GHAS／**PAT 承認**／ブランチ保護）。
 - [ ] お客様組織の**ワークショップ用リポジトリ**（運営担当提供・private・本リポジトリと約90%同一）にアクセスできる。
 - [ ] 参加者へ**事前課題**（[setup/1.Prerequisites.ja.md](setup/1.Prerequisites.ja.md)）を周知済み。
 - [ ] **正式な `.vscode/mcp.json`** と **社内プライベートレジストリ URL／認証手順**（運営担当提供）を入手済み。
@@ -38,7 +44,9 @@
 - [ ] **GitHub Codespaces** の利用可否を運営／管理者に確認済み（ローカル構築で詰まった人の切り札）。利用可なら一度作成して動作確認。[guides/8.Codespaces.ja.md](guides/8.Codespaces.ja.md)
 - [ ] 会場のネットワーク/プロキシで **社内プライベートレジストリへの到達**と **github.com への到達**を実機確認済み。
 - [ ] 当日扱う **1機能（推奨: 認証）** の Issue 文面（タイトル・説明・受け入れ条件）を確定済み。
+- [ ] **PAT 承認待ちの保険**として、Issue を**中央事前作成**済み（`scripts/create-seed-issues.sh`）。
 - [ ] 投影用に概念プライマーの要点（BRD とは／MCP の原理・種類・スコープ）を手元に用意。
+- [ ] **導線資料**を手元に: エージェント導線とゴール [guides/10.Agent-Flow-and-DoD.ja.md](guides/10.Agent-Flow-and-DoD.ja.md)／GHAS [guides/11.GHAS-Pipeline.ja.md](guides/11.GHAS-Pipeline.ja.md)／QA [guides/12.QA-Strategy.ja.md](guides/12.QA-Strategy.ja.md)。
 
 ---
 
@@ -122,7 +130,7 @@
 - 🎯 **昼休み前に**委任を着手し、**昼の間に非同期で走らせる**。
 - 🎬 認証 Issue を **github.com 上で Copilot に割り当て**（または VS Code から委任）。「これから昼。裏で進みます」。
 - 🙌 各自、選んだ Issue を委任して着手だけ済ませる。
-- 💬 「クラウドエージェントの価値は非同期。待たずに昼へ」。
+- 💬 「クラウドエージェントの価値は非同期。待たずに昼へ」。**導線とゴールは [guides/10.Agent-Flow-and-DoD.ja.md](guides/10.Agent-Flow-and-DoD.ja.md) の1枚図で共有**。
 - ⚠️ 委任が始まらない人がいても**昼へ進む**。午後、**参照ブランチ**から拾えるので問題なし。
 
 ### 12:45〜13:30 ｜ 昼食
@@ -130,8 +138,9 @@
 
 ### 13:30〜14:10 ｜ コーディング
 - 🎯 生成 PR を確認し、ローカルエージェントで修正・拡張・反復。
-- 🎬 PR を開いて差分を解説 → VS Code ローカルエージェントで不足を補う（[guides/4](guides/4.Copilot-Agent-Delegation-Guide.md)）。
-- 🙌 各自の PR をレビュー＆ローカルで反復。
+- 🎬 **「クラウド→ローカルへの戻し方」を明示**: `gh pr checkout <PR番号>` → ローカルエージェントで補完 → `./run.sh` で確認 → push（[guides/10.Agent-Flow-and-DoD.ja.md](guides/10.Agent-Flow-and-DoD.ja.md)）。
+- 🙌 各自の PR をローカルに取得して反復。
+- 💬 **どこがゴールか**を都度確認（最小=Draft PR まで／本ゴール=承認してマージ）。DoD は [guides/10](guides/10.Agent-Flow-and-DoD.ja.md) §4。
 - ⚠️ **PR が無い/壊れている人**は `git fetch && git checkout reference/auth-feature` で**参照ブランチ**に乗り換え、
   そこからレビュー以降を体験。「完璧な実装でなくてOK」。
 
@@ -139,23 +148,25 @@
 - 🎯 Copilot 自動レビュー＋CodeQL＋人の承認 → マージ。
 - 🎬 PR ページで **Copilot review** 実行 → 指摘に対し `@copilot` で batch fix / commit suggestion を実演 → 承認・マージ。
 - 🙌 各自の PR（または参照 PR）でレビュー操作を体験。
-- 💬 レビューの選択肢（fix / batch fix / ignore / `@copilot` 委任）を見せる。
+- 💬 レビューの選択肢（fix / batch fix / ignore / `@copilot` 委任）を見せる。**ここがエージェント導線の到達点（マージ）**。
 - ⚠️ CodeQL が遅い/未完了でも待たない。**参照 PR**でレビュー UI を見せれば成立。
 
 ### 14:40〜14:55 ｜ コーヒーブレイク
 
 ### 14:55〜15:25 ｜ GHAS（GitHub Advanced Security）
-- 🎯 AI findings / Dependabot / secret scanning の確認と読み解き。
-- 🎬 Security タブで各アラートを開き、意味と対応方針を解説。
-- 🙌 各自リポジトリの Security タブを確認。
+- 🎯 **パイプラインのどこで GHAS が効くか**を分解して見せる（[guides/11.GHAS-Pipeline.ja.md](guides/11.GHAS-Pipeline.ja.md) のチェックポイント図）。
+- 🎬 PR を起点に **Code scanning(CodeQL)→Copilot Autofix→Secret scanning→Dependabot** の順で Security タブを解説。「検出→修正案→承認」を一度通す。
+- 🙌 各自 Security タブを確認し、1 アラートをトリアージ（修正 or 理由付き dismiss or 課題化）。
+- 💬 人=最終判断 / AI=検出・修正案、の分担（[guides/11](guides/11.GHAS-Pipeline.ja.md) §5）。
 - ⚠️ 自分の repo にアラートが無ければ、**講師リポジトリ/参照 PR**の既知アラートを投影して解説。
 
 ### 15:25〜16:00 ｜ QA + Playwright
-- 🎯 QA エージェントでテスト生成／Playwright MCP でブラウザ検証。
-- 🎬 [guides/6.playwright-mcp-setup-working.md](guides/6.playwright-mcp-setup-working.md) に沿って `@6.SDLC Test Agent` でテスト生成 →
-  `browser_navigate`/`browser_snapshot`/`browser_click` で UI 検証（`data-testid` セレクタ）。
-- 🙌 各自テスト生成＋ブラウザ操作を試す。
-- ⚠️ Chromium 未導入なら `npx playwright install chromium`。MCP が不調なら**テスト雛形**（§3）を見せて代替。
+- 🎯 **「Playwright 本体 vs MCP」「人 vs AI」「操作結果がどう AI に渡るか」**を整理し、QA のゴールを共有（[guides/12.QA-Strategy.ja.md](guides/12.QA-Strategy.ja.md)）。
+- 🎬 探索（MCP で対話的に触る）→ 判断（人）→ テスト生成（`@6.SDLC Test Agent`）→ 実行（`npm run test:e2e`）の順で実演。
+  操作の**結果（snapshot/console/network/screenshot）が自動でエージェントに渡る**点を強調。
+- 🙌 各自 1 シナリオを MCP で触り、（任意で）テスト 1 本を生成・実行。
+- 💬 **人=意図・合否 / AI=操作・観測・生成**の境界（[guides/12](guides/12.QA-Strategy.ja.md) §3・§5）。
+- ⚠️ Chromium 未導入なら `npx playwright install chromium`。MCP が不調なら **`npm run test:e2e`（本体）**で代替（[setup/4.MCP-Fallback.ja.md](setup/4.MCP-Fallback.ja.md) §4）。
 
 ### 16:00〜16:15 ｜ カスタムエージェント演習（★今回追加）
 - 🎯 自分でエージェントを1つ作って呼び出す体験。
@@ -209,12 +220,16 @@
 ## 8. 関連ドキュメント
 
 - アジェンダ: [Agenda.ja.md](Agenda.ja.md) / [Agenda.md](Agenda.md) / [改訂理由](Agenda-Revision.md)
+- **主催者/管理者 事前準備（最重要）: [setup/0.Organizer-Preflight.ja.md](setup/0.Organizer-Preflight.ja.md)**
 - 概念: [guides/0.Concepts-Primer.ja.md](guides/0.Concepts-Primer.ja.md)
 - **BRD をゼロから作る（任意）: [guides/9.BRD-From-Scratch.ja.md](guides/9.BRD-From-Scratch.ja.md) / [../docs/brd-brief.example.md](../docs/brd-brief.example.md)**
 - 事前課題: [setup/1.Prerequisites.ja.md](setup/1.Prerequisites.ja.md)
 - ローカル MCP: [setup/3.MCP-Local-Setup.ja.md](setup/3.MCP-Local-Setup.ja.md) / [setup/mcp.local.json](setup/mcp.local.json)
 - **MCP フォールバック: [setup/4.MCP-Fallback.ja.md](setup/4.MCP-Fallback.ja.md)**
 - **事前作成Issue: [../docs/seed-issues.md](../docs/seed-issues.md) / [../scripts/create-seed-issues.sh](../scripts/create-seed-issues.sh)**
+- **エージェント導線＆完了の定義: [guides/10.Agent-Flow-and-DoD.ja.md](guides/10.Agent-Flow-and-DoD.ja.md)**
+- **GHAS パイプライン: [guides/11.GHAS-Pipeline.ja.md](guides/11.GHAS-Pipeline.ja.md)**
+- **QA 戦略（Playwright×MCP×人/AI）: [guides/12.QA-Strategy.ja.md](guides/12.QA-Strategy.ja.md)**
 - Codespaces: [guides/8.Codespaces.ja.md](guides/8.Codespaces.ja.md)
 - デモ手順: [guides/5.Demo-Flow.md](guides/5.Demo-Flow.md)
 - Playwright: [guides/6.playwright-mcp-setup-working.md](guides/6.playwright-mcp-setup-working.md)

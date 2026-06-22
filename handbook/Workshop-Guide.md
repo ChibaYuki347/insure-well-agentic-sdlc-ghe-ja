@@ -377,6 +377,9 @@ Verify th AzDo pipelines invoked or not( CI pipelines should be triggered on PR 
 2. Review and remediate Dependabot vulnerability alerts.
 3. Review secret scanning alerts and rotate exposed credentials.
 
+> **Where does GHAS fit in the pipeline?** See the checkpoint diagram and step-by-step
+> triage in [GHAS Pipeline guide (JA)](guides/11.GHAS-Pipeline.ja.md).
+
 [↑ Back to top](#table-of-contents)
 
 ---
@@ -398,5 +401,9 @@ Verify th AzDo pipelines invoked or not( CI pipelines should be triggered on PR 
 | Agent Delegation Guide | guides/4.Copilot-Agent-Delegation-Guide.md |
 | Demo Flow (detailed) | guides/5.Demo-Flow.md |
 | Playwright MCP Guide | guides/6.playwright-mcp-setup-working.md |
+| Organizer/Admin Pre-flight (JA) | setup/0.Organizer-Preflight.ja.md |
+| Agent Flow & Definition of Done (JA) | guides/10.Agent-Flow-and-DoD.ja.md |
+| GHAS Pipeline (JA) | guides/11.GHAS-Pipeline.ja.md |
+| QA Strategy — Playwright × MCP × human/AI (JA) | guides/12.QA-Strategy.ja.md |
 
 [↑ Back to top](#table-of-contents)
