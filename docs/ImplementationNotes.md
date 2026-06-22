@@ -9,7 +9,7 @@
 - `User` entity (`id`, `username`, `password`, `role`) persisted to H2 `users` table.
 - `UserRepository` with `findByUsername` query.
 - `JwtUtil` — generates and validates HS256-signed JWT tokens (24-hour expiry). Secret and expiry are externalized to `application.properties`.
-- `JwtAuthenticationFilter` — `OncePerRequestFilter` that extracts `Authorization: ****** header, validates the JWT, and sets the `SecurityContextHolder` principal.
+- `JwtAuthenticationFilter` — `OncePerRequestFilter` that extracts `Authorization: Bearer <jwt> header, validates the JWT, and sets the `SecurityContextHolder` principal.
 - `SecurityConfig` — configures Spring Security (stateless sessions, CSRF disabled, CORS permissive for dev):
   - Public routes: `POST /api/auth/**`, `GET /api/health`, `/h2-console/**`, pre-flight OPTIONS.
   - All other `/api/**` routes require a valid JWT (`401` via custom `AuthenticationEntryPoint`).
@@ -23,7 +23,7 @@
 - `App.js` updated to:
   - Wrap the app with `AuthProvider`.
   - Show `<Login />` when not authenticated.
-  - Add an Axios request interceptor that attaches `Authorization: ****** header to every API call.
+  - Add an Axios request interceptor that attaches `Authorization: Bearer <jwt> header to every API call.
   - Handle `401` responses from the backend by calling `logout()`.
 - `Navigation.js` updated to accept `onLogout` prop and render a **サインアウト** button that clears the session.
 - `Navigation.css` updated with logout button hover styles.

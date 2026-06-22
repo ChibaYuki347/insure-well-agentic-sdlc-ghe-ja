@@ -38,16 +38,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
       String token = authHeader.substring(7);
       if (jwtUtil.isTokenValid(token)) {
         String username = jwtUtil.extractUsername(token);
-        String role = jwtUtil.extractRole(token);
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-          boolean userExists = userRepository.findByUsername(username).isPresent();
-          if (userExists) {
+          // Load role from the database so that role changes take effect immediately
+          // without waiting for token expiry, and reduce blast-radius if the signing key leaks.
+          userRepository.findByUsername(username).ifPresent(user -> {
             var auth = new UsernamePasswordAuthenticationToken(
               username, null,
-              List.of(new SimpleGrantedAuthority("ROLE_" + role))
+              List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole()))
             );
             SecurityContextHolder.getContext().setAuthentication(auth);
-          }
+          });
         }
       }
     }

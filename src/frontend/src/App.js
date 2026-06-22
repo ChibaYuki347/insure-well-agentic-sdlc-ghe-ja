@@ -19,6 +19,7 @@ const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || '/api';
 axios.interceptors.request.use((config) => {
   const token = localStorage.getItem('insurewell_token');
   if (token) {
+    config.headers = config.headers || {};
     config.headers['Authorization'] = 'Bearer ' + token;
   }
   return config;

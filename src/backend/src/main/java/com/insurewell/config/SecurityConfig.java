@@ -44,7 +44,7 @@ public class SecurityConfig {
   @Bean
   public AuthenticationEntryPoint unauthorizedEntryPoint() {
     return (request, response, authException) -> {
-      response.setContentType("application/json");
+      response.setContentType("application/json;charset=UTF-8");
       response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
       response.getWriter().write("{\"error\":\"認証が必要です。ログインしてください。\"}");
     };
@@ -65,9 +65,11 @@ public class SecurityConfig {
   @Bean
   public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
     http
-      // CSRF protection is disabled because authentication uses stateless JWT tokens
-      // sent in the Authorization header (not cookies). Cross-origin requests cannot
-      // read localStorage or set custom headers, so CSRF attacks are not applicable.
+      // CSRF protection is disabled because this API uses stateless JWT tokens
+      // transmitted in the Authorization header (not stored in cookies). Since browsers
+      // do not automatically attach the Authorization header, CSRF attacks that rely on
+      // automatic credential sending do not apply. If authentication is ever switched to
+      // cookies, CSRF protection must be re-enabled.
       .csrf(AbstractHttpConfigurer::disable)
       .cors(cors -> cors.configurationSource(corsConfigurationSource()))
       .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
