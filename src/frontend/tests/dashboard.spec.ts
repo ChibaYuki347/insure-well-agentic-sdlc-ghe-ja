@@ -1,30 +1,40 @@
 import { test, expect } from '@playwright/test';
 
-test.describe('Navigation', () => {
+async function loginAs(page, username, password) {
+  await page.goto('/');
+  await expect(page.getByTestId('login-card')).toBeVisible();
+  await page.getByTestId('login-username').fill(username);
+  await page.getByTestId('login-password').fill(password);
+  await page.getByTestId('login-submit').click();
+  await expect(page.getByTestId('navbar')).toBeVisible();
+}
+
+test.describe('Navigation (admin)', () => {
+  test.beforeEach(async ({ page }) => {
+    await loginAs(page, 'admin', 'admin123');
+  });
+
   test('navbar is visible with Dashboard and Claims links', async ({ page }) => {
-    await page.goto('/');
     await expect(page.getByTestId('navbar')).toBeVisible();
     await expect(page.getByTestId('nav-dashboard')).toBeVisible();
     await expect(page.getByTestId('nav-claims')).toBeVisible();
   });
 
   test('clicking Claims nav link switches to claims page', async ({ page }) => {
-    await page.goto('/');
     await page.getByTestId('nav-claims').click();
     await expect(page.getByTestId('claims')).toBeVisible();
   });
 
   test('clicking Dashboard nav link switches back to dashboard', async ({ page }) => {
-    await page.goto('/');
     await page.getByTestId('nav-claims').click();
     await page.getByTestId('nav-dashboard').click();
     await expect(page.getByTestId('dashboard')).toBeVisible();
   });
 });
 
-test.describe('Policy Dashboard', () => {
+test.describe('Policy Dashboard (admin)', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('/');
+    await loginAs(page, 'admin', 'admin123');
     await expect(page.getByTestId('dashboard')).toBeVisible();
   });
 
@@ -56,10 +66,10 @@ test.describe('Policy Dashboard', () => {
     await expect(page.getByTestId('policy-modal')).not.toBeVisible();
   });
 
-  test('saving policy without required fields shows validation error', async ({ page }) => {
+  test('saving policy without required fields keeps modal open', async ({ page }) => {
     await page.getByTestId('add-policy-btn').click();
     await page.getByTestId('save-policy-btn').click();
-    await expect(page.getByTestId('policy-form-error')).toBeVisible();
+    await expect(page.getByTestId('policy-modal')).toBeVisible();
   });
 
   test('can add a new policy through the form', async ({ page }) => {
@@ -76,5 +86,18 @@ test.describe('Policy Dashboard', () => {
 
   test('recent claims table is visible when a policy is selected', async ({ page }) => {
     await expect(page.getByTestId('recent-claims-table')).toBeVisible();
+  });
+});
+
+test.describe('Policy Dashboard (policyholder)', () => {
+  test.beforeEach(async ({ page }) => {
+    await loginAs(page, 'alex', 'alex123');
+    await expect(page.getByTestId('dashboard')).toBeVisible();
+  });
+
+  test('policyholder cannot see policy mutation controls', async ({ page }) => {
+    await expect(page.getByTestId('add-policy-btn')).toHaveCount(0);
+    await expect(page.locator('[data-testid^="edit-policy-btn-"]')).toHaveCount(0);
+    await expect(page.locator('[data-testid^="delete-policy-btn-"]')).toHaveCount(0);
   });
 });

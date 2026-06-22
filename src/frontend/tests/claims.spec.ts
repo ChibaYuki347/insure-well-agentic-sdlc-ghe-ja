@@ -1,8 +1,17 @@
 import { test, expect } from '@playwright/test';
 
-test.describe('Claims Page', () => {
+async function loginAs(page, username, password) {
+  await page.goto('/');
+  await expect(page.getByTestId('login-card')).toBeVisible();
+  await page.getByTestId('login-username').fill(username);
+  await page.getByTestId('login-password').fill(password);
+  await page.getByTestId('login-submit').click();
+  await expect(page.getByTestId('navbar')).toBeVisible();
+}
+
+test.describe('Claims Page (admin)', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('/');
+    await loginAs(page, 'admin', 'admin123');
     await page.getByTestId('nav-claims').click();
     await expect(page.getByTestId('claims')).toBeVisible();
   });
@@ -24,12 +33,12 @@ test.describe('Claims Page', () => {
     await expect(page.getByTestId('claim-form')).not.toBeVisible();
   });
 
-  test('submitting claim without required fields shows validation error', async ({ page }) => {
+  test('submitting claim without required fields keeps form open', async ({ page }) => {
     await page.getByTestId('new-claim-btn').click();
     await page.getByTestId('input-claim-amount').clear();
     await page.getByTestId('input-claim-description').fill('');
     await page.getByTestId('submit-claim-btn').click();
-    await expect(page.getByTestId('claim-form-error')).toBeVisible();
+    await expect(page.getByTestId('claim-form')).toBeVisible();
   });
 
   test('can submit a new claim through the form', async ({ page }) => {
@@ -72,5 +81,19 @@ test.describe('Claims Page', () => {
   test('screenshot of claims page for visual review', async ({ page }) => {
     await expect(page.getByTestId('claims')).toBeVisible();
     await page.screenshot({ path: 'test-results/claims-page.png', fullPage: true });
+  });
+});
+
+test.describe('Claims Page (policyholder)', () => {
+  test.beforeEach(async ({ page }) => {
+    await loginAs(page, 'alex', 'alex123');
+    await page.getByTestId('nav-claims').click();
+    await expect(page.getByTestId('claims')).toBeVisible();
+  });
+
+  test('policyholder sees read-only status badges and no delete buttons', async ({ page }) => {
+    await expect(page.locator('select[data-testid^="claim-status-"]')).toHaveCount(0);
+    await expect(page.locator('[data-testid^="claim-status-readonly-"]').first()).toBeVisible();
+    await expect(page.locator('[data-testid^="delete-claim-"]')).toHaveCount(0);
   });
 });

@@ -1,0 +1,18 @@
+{
+  "cookies": [],
+  "origins": [
+    {
+      "origin": "http://localhost:3000",
+      "localStorage": [
+        {
+          "name": "insurewell_token",
+          "value": "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhZG1pbiIsInJvbGUiOiJBRE1JTiIsImlhdCI6MTc4MjA4MTMxOSwiZXhwIjoxNzgyMTY3NzE5fQ.JE4AqjQ1VRvSQv5SnapkPj1GlKsl7MDUH6lNufCg1lZAEtihC8oMU1kEBtxGwx5Th6CwYW33pdh3bNWvVjhZuA"
+        },
+        {
+          "name": "insurewell_user",
+          "value": "{\"username\":\"admin\",\"role\":\"ADMIN\"}"
+        }
+      ]
+    }
+  ]
+}

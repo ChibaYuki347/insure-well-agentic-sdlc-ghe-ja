@@ -1,5 +1,7 @@
 # InsureWell Epics
 
+Last validated against current implementation: 2026-06-22
+
 ## Epic Overview
 The epics below translate the business goals in [BRD.md](BRD.md) into implementation-ready product themes for the React + Spring Boot platform.
 

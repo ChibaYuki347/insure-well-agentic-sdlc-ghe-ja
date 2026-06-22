@@ -80,6 +80,7 @@ src/
 ## Frontend
 
 **Pages:**
+0. **Login** — Authenticate as admin or policyholder before accessing protected data
 1. **Dashboard** — View policies, manage policy lifecycle, see recent claims and statistics
 2. **Claims** — Submit new claims, view and filter claims, update claim status
 
@@ -150,6 +151,9 @@ The frontend will open on **http://localhost:3000** and automatically connect to
 | Method  | Endpoint                      | Description                        |
 |---------|-------------------------------|------------------------------------|
 | `GET`   | `/api/health`                 | Health check                       |
+| `POST`  | `/api/auth/login`             | Login and create authenticated session |
+| `POST`  | `/api/auth/logout`            | Logout and clear authenticated session |
+| `GET`   | `/api/auth/me`                | Current authenticated user         |
 | `GET`   | `/api/policies`               | List all policies                  |
 | `POST`  | `/api/policies`               | Create a policy                    |
 | `GET`   | `/api/policies/{id}`          | Get a single policy                |
@@ -181,6 +185,23 @@ The frontend will open on **http://localhost:3000** and automatically connect to
 ```
 
 Valid values: `Pending`, `Approved`, `Rejected`.
+
+## Demo Credentials
+
+Use these local seeded users after startup:
+
+| Role | Username | Password |
+|------|----------|----------|
+| Admin | `admin` | `admin123` |
+| Policyholder | `alex` | `alex123` |
+| Policyholder | `maria` | `maria123` |
+| Policyholder | `david` | `david123` |
+
+Authorization rules in the current authenticated MVP:
+- Admin can view and manage all policies and claims.
+- Policyholders can view only their own policies and claims.
+- Policyholders can submit claims only for their own policies.
+- Policyholders cannot create/edit/delete policies or update claim status.
 
 ## Data Model
 
@@ -273,9 +294,9 @@ Because H2 is configured in memory for local development, restarting the backend
 ## Next Steps
 
 1. Add comprehensive error handling and validation
-2. Implement JWT authentication
+2. Strengthen role model and ownership mapping beyond holderName matching
 3. Add file upload support for claim documents
-4. Create unit and integration tests
+4. Create broader unit and integration tests
 5. Deploy backend to cloud (AWS/Azure/GCP)
 6. Deploy frontend to CDN or static hosting
 7. Add Redux for state management if app grows

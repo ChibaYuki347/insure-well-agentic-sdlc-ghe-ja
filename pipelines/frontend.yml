@@ -7,6 +7,7 @@ pr:
       - main
   paths:
     include:
+      - src/backend/**
       - src/frontend/**
       - pipelines/frontend.yml
 
@@ -40,3 +41,95 @@ steps:
       npm run build
     displayName: 'Install and build frontend (React)'
     workingDirectory: src/frontend
+
+  - script: |
+      set -euo pipefail
+
+      ROOT_DIR="$(Build.SourcesDirectory)"
+      BACKEND_LOG="$ROOT_DIR/_tmp/backend-ci.log"
+      FRONTEND_LOG="$ROOT_DIR/_tmp/frontend-ci.log"
+
+      mkdir -p "$ROOT_DIR/_tmp"
+      mkdir -p "$ROOT_DIR/src/frontend/playwright-report"
+      mkdir -p "$ROOT_DIR/src/frontend/test-results"
+
+      BACKEND_PID=""
+      FRONTEND_PID=""
+
+      cleanup() {
+        if [ -n "$FRONTEND_PID" ] && kill -0 "$FRONTEND_PID" 2>/dev/null; then
+          kill "$FRONTEND_PID" || true
+        fi
+        if [ -n "$BACKEND_PID" ] && kill -0 "$BACKEND_PID" 2>/dev/null; then
+          kill "$BACKEND_PID" || true
+        fi
+      }
+      trap cleanup EXIT
+
+      echo "Starting backend..."
+      cd "$ROOT_DIR/src/backend"
+      ./mvnw -B -DskipTests spring-boot:run > "$BACKEND_LOG" 2>&1 &
+      BACKEND_PID=$!
+
+      echo "Waiting for backend readiness..."
+      for i in $(seq 1 60); do
+        if curl -fsS "http://localhost:8080/api/health" >/dev/null; then
+          echo "Backend is ready"
+          break
+        fi
+        sleep 2
+      done
+
+      if ! curl -fsS "http://localhost:8080/api/health" >/dev/null; then
+        echo "Backend failed to become ready"
+        tail -n 200 "$BACKEND_LOG" || true
+        exit 1
+      fi
+
+      echo "Starting frontend..."
+      cd "$ROOT_DIR/src/frontend"
+      BROWSER=none npm start > "$FRONTEND_LOG" 2>&1 &
+      FRONTEND_PID=$!
+
+      echo "Waiting for frontend readiness..."
+      for i in $(seq 1 60); do
+        if curl -fsS "http://localhost:3000" >/dev/null; then
+          echo "Frontend is ready"
+          break
+        fi
+        sleep 2
+      done
+
+      if ! curl -fsS "http://localhost:3000" >/dev/null; then
+        echo "Frontend failed to become ready"
+        tail -n 200 "$FRONTEND_LOG" || true
+        exit 1
+      fi
+
+      echo "Installing Playwright browser dependencies..."
+      npx playwright install --with-deps chromium
+
+      echo "Running Playwright E2E tests..."
+      npx playwright test
+    displayName: 'Run Playwright E2E (frontend + backend)'
+
+  - task: PublishPipelineArtifact@1
+    displayName: 'Publish Playwright HTML report'
+    condition: always()
+    inputs:
+      targetPath: 'src/frontend/playwright-report'
+      artifact: 'playwright-report'
+
+  - task: PublishPipelineArtifact@1
+    displayName: 'Publish Playwright raw test output'
+    condition: always()
+    inputs:
+      targetPath: 'src/frontend/test-results'
+      artifact: 'playwright-test-results'
+
+  - task: PublishPipelineArtifact@1
+    displayName: 'Publish E2E startup logs'
+    condition: always()
+    inputs:
+      targetPath: '_tmp'
+      artifact: 'e2e-startup-logs'

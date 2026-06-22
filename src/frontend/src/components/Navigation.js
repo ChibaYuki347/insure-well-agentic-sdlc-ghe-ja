@@ -1,7 +1,10 @@
 import React from 'react';
+import { useAuth } from '../context/AuthContext';
 import '../styles/Navigation.css';
 
-function Navigation({ currentPage, setCurrentPage }) {
+function Navigation({ currentPage, setCurrentPage, currentUser }) {
+  const { logout } = useAuth();
+
   return (
     <nav className="navbar" data-testid="navbar">
       <div className="navbar-brand">
@@ -27,6 +30,15 @@ function Navigation({ currentPage, setCurrentPage }) {
           </button>
         </li>
       </ul>
+      <div className="navbar-user" data-testid="navbar-user">
+        <div className="navbar-user-copy">
+          <span className="navbar-user-name">{currentUser.fullName}</span>
+          <span className="navbar-user-role">{currentUser.role === 'ADMIN' ? 'Admin' : 'Policyholder'}</span>
+        </div>
+        <button className="nav-link nav-link-logout" onClick={logout} data-testid="logout-btn">
+          ログアウト
+        </button>
+      </div>
     </nav>
   );
 }

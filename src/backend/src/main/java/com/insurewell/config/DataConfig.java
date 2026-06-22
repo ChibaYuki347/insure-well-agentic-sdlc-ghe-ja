@@ -1,12 +1,15 @@
 package com.insurewell.config;
 
+import com.insurewell.model.AppUser;
 import com.insurewell.model.Claim;
 import com.insurewell.model.Policy;
+import com.insurewell.repository.AppUserRepository;
 import com.insurewell.repository.ClaimRepository;
 import com.insurewell.repository.PolicyRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
@@ -28,8 +31,41 @@ public class DataConfig {
   }
 
   @Bean
-  public CommandLineRunner loadData(PolicyRepository policyRepo, ClaimRepository claimRepo) {
+  public CommandLineRunner loadData(
+      PolicyRepository policyRepo,
+      ClaimRepository claimRepo,
+      AppUserRepository userRepo,
+      PasswordEncoder passwordEncoder) {
     return args -> {
+      if (userRepo.count() == 0) {
+        userRepo.saveAll(List.of(
+          AppUser.builder()
+            .username("admin")
+            .passwordHash(passwordEncoder.encode("admin123"))
+            .role("ADMIN")
+            .fullName("InsureWell Admin")
+            .build(),
+          AppUser.builder()
+            .username("alex")
+            .passwordHash(passwordEncoder.encode("alex123"))
+            .role("POLICYHOLDER")
+            .fullName("Alex Johnson")
+            .build(),
+          AppUser.builder()
+            .username("maria")
+            .passwordHash(passwordEncoder.encode("maria123"))
+            .role("POLICYHOLDER")
+            .fullName("Maria Garcia")
+            .build(),
+          AppUser.builder()
+            .username("david")
+            .passwordHash(passwordEncoder.encode("david123"))
+            .role("POLICYHOLDER")
+            .fullName("David Chen")
+            .build()
+        ));
+      }
+
       // Only seed if empty
       if (policyRepo.count() == 0) {
         LocalDateTime now = LocalDateTime.now(ZoneId.of("UTC"));

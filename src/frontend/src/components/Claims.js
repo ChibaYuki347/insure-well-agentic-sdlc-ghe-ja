@@ -3,7 +3,7 @@ import axios from 'axios';
 import '../styles/Claims.css';
 import { claimStatusLabel } from '../i18n/labels';
 
-function Claims({ policies, claims, onRefresh, apiBase }) {
+function Claims({ policies, claims, onRefresh, apiBase, isAdmin }) {
   const [filterPolicyId, setFilterPolicyId] = useState('');
   const [showForm, setShowForm] = useState(false);
   const [formData, setFormData] = useState({
@@ -196,26 +196,36 @@ function Claims({ policies, claims, onRefresh, apiBase }) {
                   <td>{claim.description}</td>
                   <td>${claim.amount.toLocaleString()}</td>
                   <td>
-                    <select
-                      value={claim.status}
-                      onChange={e => handleStatusChange(claim.id, e.target.value)}
-                      className={`status-select status-${claim.status.toLowerCase()}`}
-                      data-testid={`claim-status-${claim.id}`}
-                    >
-                      <option value="Pending">{claimStatusLabel('Pending')}</option>
-                      <option value="Approved">{claimStatusLabel('Approved')}</option>
-                      <option value="Rejected">{claimStatusLabel('Rejected')}</option>
-                    </select>
+                    {isAdmin ? (
+                      <select
+                        value={claim.status}
+                        onChange={e => handleStatusChange(claim.id, e.target.value)}
+                        className={`status-select status-${claim.status.toLowerCase()}`}
+                        data-testid={`claim-status-${claim.id}`}
+                      >
+                        <option value="Pending">{claimStatusLabel('Pending')}</option>
+                        <option value="Approved">{claimStatusLabel('Approved')}</option>
+                        <option value="Rejected">{claimStatusLabel('Rejected')}</option>
+                      </select>
+                    ) : (
+                      <span className={`status-badge ${claim.status.toLowerCase()}`} data-testid={`claim-status-readonly-${claim.id}`}>
+                        {claimStatusLabel(claim.status)}
+                      </span>
+                    )}
                   </td>
                   <td>{new Date(claim.submittedAt).toLocaleDateString('ja-JP')}</td>
                   <td>
-                    <button
-                      className="delete-btn-small"
-                      onClick={() => handleDeleteClaim(claim.id)}
-                      data-testid={`delete-claim-${claim.id}`}
-                    >
-                      🗑️
-                    </button>
+                    {isAdmin ? (
+                      <button
+                        className="delete-btn-small"
+                        onClick={() => handleDeleteClaim(claim.id)}
+                        data-testid={`delete-claim-${claim.id}`}
+                      >
+                        🗑️
+                      </button>
+                    ) : (
+                      <span className="mono">-</span>
+                    )}
                   </td>
                 </tr>
               ))}

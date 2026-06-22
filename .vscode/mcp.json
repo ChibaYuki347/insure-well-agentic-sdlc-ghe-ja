@@ -16,6 +16,22 @@
         "GITHUB_PERSONAL_ACCESS_TOKEN": "${input:github-pat}"
       }
     },
+    "github-cli-auth": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-github"]
+    },
+    "ado": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@azure-devops/mcp@latest",
+        "MetLife-Global",
+        "-d",
+        "core, work, work-items, search, repositories, pipelines"
+      ]
+    },
     "microsoft/playwright-mcp": {
       "type": "stdio",
       "command": "npx",

@@ -22,7 +22,9 @@
     "test:e2e:report": "playwright show-report"
   },
   "devDependencies": {
-    "@playwright/test": "^1.44.0"
+    "@playwright/test": "^1.44.0",
+    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/react": "^16.0.1"
   },
   "eslintConfig": {
     "extends": [
