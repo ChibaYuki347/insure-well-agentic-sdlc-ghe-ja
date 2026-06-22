@@ -1,4 +1,11 @@
-import { test, expect } from '@playwright/test';
+import { test, expect, type Page, type TestInfo } from '@playwright/test';
+
+async function attachScreenshot(page: Page, testInfo: TestInfo, name: string) {
+  await testInfo.attach(name, {
+    body: await page.screenshot({ fullPage: true }),
+    contentType: 'image/png',
+  });
+}
 
 test.describe('Login Page', () => {
   test.use({ storageState: { cookies: [], origins: [] } });
@@ -33,13 +40,15 @@ test.describe('Login Page', () => {
     await expect(page.getByTestId('login-error')).toBeVisible();
   });
 
-  test('successful login shows dashboard', async ({ page }) => {
+  test('successful login shows dashboard', async ({ page }, testInfo) => {
     await page.goto('/');
+    await attachScreenshot(page, testInfo, 'login-page');
     await page.getByTestId('input-username').fill('admin');
     await page.getByTestId('input-password').fill('admin123');
     await page.getByTestId('login-btn').click();
     await expect(page.getByTestId('navbar')).toBeVisible();
     await expect(page.getByTestId('login-page')).not.toBeVisible();
+    await attachScreenshot(page, testInfo, 'dashboard-after-login');
   });
 
   test('sign out returns to login page', async ({ page }) => {

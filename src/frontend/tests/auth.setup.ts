@@ -1,3 +1,5 @@
+import fs from 'node:fs/promises';
+import path from 'node:path';
 import { test as setup } from '@playwright/test';
 
 const authFile = 'playwright/.auth/user.json';
@@ -22,5 +24,6 @@ setup('authenticate', async ({ page, request }) => {
   }, auth);
   await page.reload();
   await page.waitForSelector('[data-testid="navbar"]');
+  await fs.mkdir(path.dirname(authFile), { recursive: true });
   await page.context().storageState({ path: authFile });
 });
