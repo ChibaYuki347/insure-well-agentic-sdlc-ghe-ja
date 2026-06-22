@@ -12,6 +12,7 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -56,6 +57,7 @@ class SecurityAuthorizationIntegrationTest {
 
     mockMvc.perform(patch("/api/claims/CLM-1715787000000/status")
         .session(session)
+        .with(csrf())
         .contentType(MediaType.APPLICATION_JSON)
         .content("""
           {"status":"Rejected"}

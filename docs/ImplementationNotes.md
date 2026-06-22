@@ -13,7 +13,7 @@
 - Ownership is currently inferred from `Policy.holderName` matching the authenticated user's `fullName`.
 - This is sufficient for the workshop MVP, but it is not the desired long-term ownership model.
 - The first authenticated release uses local JPA/H2 users instead of external identity federation.
-- CSRF is disabled for the workshop-local session flow to reduce setup complexity.
+- CSRF protection is enabled with cookie-based token handling; only `/api/auth/**` and `/h2-console/**` are excluded for local login/bootstrap behavior.
 
 ### Follow-up work
 - Replace holder-name ownership matching with an explicit user-to-policy relationship.
