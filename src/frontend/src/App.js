@@ -9,6 +9,9 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || '/api';
 
+axios.defaults.xsrfCookieName = 'XSRF-TOKEN';
+axios.defaults.xsrfHeaderName = 'X-XSRF-TOKEN';
+
 function AppContent() {
   const { currentUser, authLoading } = useAuth();
   const [currentPage, setCurrentPage] = useState('dashboard');
