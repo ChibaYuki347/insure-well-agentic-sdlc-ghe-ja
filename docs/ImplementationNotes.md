@@ -30,3 +30,4 @@
 - `pipelines/frontend.yml` now includes a Playwright E2E stage that starts backend and frontend in the same job, waits for readiness, and runs `npx playwright test`.
 - The frontend PR pipeline now triggers on both `src/frontend/**` and `src/backend/**` so API/auth changes are validated by E2E.
 - CI publishes Playwright HTML report, raw `test-results`, and startup logs (`_tmp/backend-ci.log`, `_tmp/frontend-ci.log`) as pipeline artifacts.
+- Added GitHub Actions workflow `/.github/workflows/playwright-e2e.yml` to run Playwright E2E on pull requests and manual dispatch, with HTML/JUnit/log artifacts always uploaded for result verification.
