@@ -1,17 +1,23 @@
 package com.insurewell.controller;
 
 import com.insurewell.dto.ClaimDTO;
+import com.insurewell.model.AppUser;
 import com.insurewell.model.Claim;
+import com.insurewell.model.Policy;
+import com.insurewell.repository.AppUserRepository;
 import com.insurewell.repository.ClaimRepository;
 import com.insurewell.repository.PolicyRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -29,6 +35,9 @@ public class ClaimController {
   @Autowired
   private PolicyRepository policyRepository;
 
+  @Autowired
+  private AppUserRepository userRepository;
+
   private ClaimDTO toDTO(Claim claim) {
     return ClaimDTO.builder()
       .id(claim.getId())
@@ -42,20 +51,37 @@ public class ClaimController {
       .build();
   }
 
-  @GetMapping
-  public ResponseEntity<List<ClaimDTO>> getClaims(@RequestParam(required = false) String policy_id) {
-    List<ClaimDTO> claims;
-    if (policy_id != null && !policy_id.isEmpty()) {
-      claims = claimRepository.findByPolicyIdOrderBySubmittedAtDesc(policy_id)
-        .stream()
-        .map(this::toDTO)
-        .collect(Collectors.toList());
-    } else {
-      claims = claimRepository.findAllByOrderBySubmittedAtDesc()
-        .stream()
-        .map(this::toDTO)
-        .collect(Collectors.toList());
+  private AppUser currentUser(Authentication authentication) {
+    return userRepository.findByUsername(authentication.getName()).orElseThrow();
+  }
+
+  private boolean isAdmin(AppUser user) {
+    return "ADMIN".equals(user.getRole());
+  }
+
+  private Set<String> accessiblePolicyIds(AppUser user) {
+    if (isAdmin(user)) {
+      return policyRepository.findAllByOrderByCreatedAtAsc().stream().map(Policy::getId).collect(Collectors.toSet());
     }
+
+    return policyRepository.findAllByOrderByCreatedAtAsc().stream()
+      .filter(policy -> policy.getHolderName().equals(user.getFullName()))
+      .map(Policy::getId)
+      .collect(Collectors.toSet());
+  }
+
+  @GetMapping
+  public ResponseEntity<List<ClaimDTO>> getClaims(@RequestParam(required = false) String policy_id, Authentication authentication) {
+    AppUser user = currentUser(authentication);
+    Set<String> visiblePolicyIds = accessiblePolicyIds(user);
+
+    List<ClaimDTO> claims = claimRepository.findAllByOrderBySubmittedAtDesc()
+      .stream()
+      .filter(claim -> visiblePolicyIds.contains(claim.getPolicyId()))
+      .filter(claim -> policy_id == null || policy_id.isEmpty() || claim.getPolicyId().equals(policy_id))
+      .map(this::toDTO)
+      .collect(Collectors.toList());
+
     return ResponseEntity.ok(claims);
   }
 
@@ -63,7 +89,10 @@ public class ClaimController {
   public ResponseEntity<?> createClaim(
       @RequestParam String policy_id,
       @RequestParam Double amount,
-      @RequestParam String description) {
+      @RequestParam String description,
+      Authentication authentication) {
+
+    AppUser user = currentUser(authentication);
 
     // Validate input
     if (policy_id == null || policy_id.trim().isEmpty()
@@ -77,6 +106,11 @@ public class ClaimController {
     if (!policyRepository.existsById(policy_id)) {
       return ResponseEntity.status(HttpStatus.NOT_FOUND)
         .body(Map.of("error", "Policy not found"));
+    }
+
+    if (!accessiblePolicyIds(user).contains(policy_id)) {
+      return ResponseEntity.status(HttpStatus.FORBIDDEN)
+        .body(Map.of("error", "You do not have access to create a claim for this policy"));
     }
 
     LocalDateTime now = LocalDateTime.now();
@@ -100,7 +134,13 @@ public class ClaimController {
   @PatchMapping("/{id}/status")
   public ResponseEntity<?> updateClaimStatus(
       @PathVariable String id,
-      @RequestBody Map<String, String> body) {
+      @RequestBody Map<String, String> body,
+      Authentication authentication) {
+
+    if (!isAdmin(currentUser(authentication))) {
+      return ResponseEntity.status(HttpStatus.FORBIDDEN)
+        .body(Map.of("error", "Only admins can update claim status"));
+    }
 
     String status = body.get("status");
     if (status == null || (!status.equals("Pending") && !status.equals("Approved") && !status.equals("Rejected"))) {
@@ -119,7 +159,12 @@ public class ClaimController {
   }
 
   @DeleteMapping("/{id}")
-  public ResponseEntity<Void> deleteClaim(@PathVariable String id) {
+  public ResponseEntity<?> deleteClaim(@PathVariable String id, Authentication authentication) {
+    if (!isAdmin(currentUser(authentication))) {
+      return ResponseEntity.status(HttpStatus.FORBIDDEN)
+        .body(Map.of("error", "Only admins can delete claims"));
+    }
+
     if (claimRepository.existsById(id)) {
       claimRepository.deleteById(id);
       return ResponseEntity.noContent().build();

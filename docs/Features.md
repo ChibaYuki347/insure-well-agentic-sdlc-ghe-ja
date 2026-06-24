@@ -1,5 +1,7 @@
 # InsureWell Features Backlog
 
+Last validated against current implementation: 2026-06-22
+
 ## Feature Overview
 Each feature maps to an epic in [Epics.md](Epics.md) and supports one or more business goals from [BRD.md](BRD.md).
 

@@ -3,7 +3,7 @@ import axios from 'axios';
 import '../styles/Dashboard.css';
 import { policyStatusLabel, claimStatusLabel } from '../i18n/labels';
 
-function Dashboard({ policies, claims, onRefresh, apiBase }) {
+function Dashboard({ policies, claims, onRefresh, apiBase, isAdmin }) {
   const [selectedPolicyId, setSelectedPolicyId] = useState(policies[0]?.id || null);
   const [showPolicyModal, setShowPolicyModal] = useState(false);
   const [modalMode, setModalMode] = useState('add');
@@ -98,9 +98,11 @@ function Dashboard({ policies, claims, onRefresh, apiBase }) {
           <h1>ポリシー ダッシュボード</h1>
           <p data-testid="policy-count">アカウントのポリシー: {policies.length} 件</p>
         </div>
-        <button className="btn btn-primary" onClick={openAddModal} data-testid="add-policy-btn">
-          ＋ ポリシー追加
-        </button>
+        {isAdmin && (
+          <button className="btn btn-primary" onClick={openAddModal} data-testid="add-policy-btn">
+            ＋ ポリシー追加
+          </button>
+        )}
       </div>
 
       {selectedPolicy && (
@@ -115,22 +117,24 @@ function Dashboard({ policies, claims, onRefresh, apiBase }) {
               >
                 <span>{policy.holderName}</span>
                 <span className="policy-id">{policy.id}</span>
-                <div className="tab-actions">
-                  <button
-                    className="edit-btn"
-                    onClick={(e) => { e.stopPropagation(); openEditModal(policy); }}
-                    data-testid={`edit-policy-btn-${policy.id}`}
-                  >
-                    ✏️
-                  </button>
-                  <button
-                    className="delete-btn"
-                    onClick={(e) => { e.stopPropagation(); handleDeletePolicy(policy.id, policy.holderName); }}
-                    data-testid={`delete-policy-btn-${policy.id}`}
-                  >
-                    🗑️
-                  </button>
-                </div>
+                {isAdmin && (
+                  <div className="tab-actions">
+                    <button
+                      className="edit-btn"
+                      onClick={(e) => { e.stopPropagation(); openEditModal(policy); }}
+                      data-testid={`edit-policy-btn-${policy.id}`}
+                    >
+                      ✏️
+                    </button>
+                    <button
+                      className="delete-btn"
+                      onClick={(e) => { e.stopPropagation(); handleDeletePolicy(policy.id, policy.holderName); }}
+                      data-testid={`delete-policy-btn-${policy.id}`}
+                    >
+                      🗑️
+                    </button>
+                  </div>
+                )}
               </div>
             ))}
           </div>
@@ -220,7 +224,7 @@ function Dashboard({ policies, claims, onRefresh, apiBase }) {
         </>
       )}
 
-      {showPolicyModal && (
+      {isAdmin && showPolicyModal && (
         <div className="modal-overlay" onClick={() => setShowPolicyModal(false)} data-testid="modal-overlay">
           <div className="modal-content" onClick={e => e.stopPropagation()} data-testid="policy-modal">
             <h2>{modalMode === 'add' ? 'ポリシー追加' : 'ポリシー編集'}</h2>

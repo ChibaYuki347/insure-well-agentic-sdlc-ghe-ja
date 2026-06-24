@@ -1,5 +1,7 @@
 # InsureWell Business Requirements Document
 
+Last validated against current implementation: 2026-06-22
+
 ## 1. Purpose
 InsureWell currently delivers a Phase 1 MVP for managing health insurance policies and claims through a React frontend and Spring Boot backend. The product supports policy CRUD, claim submission, claim status updates, and seeded demo data, but it does not yet provide the security, workflow controls, communications, reporting, and operational capabilities needed for a production-ready insurance experience.
 
