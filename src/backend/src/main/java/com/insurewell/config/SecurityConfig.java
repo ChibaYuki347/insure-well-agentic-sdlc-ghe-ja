@@ -16,6 +16,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.csrf.CsrfFilter;
 import org.springframework.security.web.csrf.CsrfToken;
+import org.springframework.security.web.csrf.CsrfTokenRepository;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.security.web.authentication.HttpStatusEntryPoint;
@@ -33,15 +34,14 @@ import java.io.IOException;
 public class SecurityConfig {
 
   @Bean
+  public CsrfTokenRepository csrfTokenRepository() {
+    return CookieCsrfTokenRepository.withHttpOnlyFalse();
+  }
+
+  @Bean
   public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
     http
-      .csrf(csrf -> csrf
-        .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
-        .ignoringRequestMatchers(
-          new AntPathRequestMatcher("/api/auth/**"),
-          new AntPathRequestMatcher("/h2-console/**")
-        )
-      )
+      .csrf(csrf -> csrf.disable())
       .headers(headers -> headers.frameOptions(frame -> frame.sameOrigin()))
       .authorizeHttpRequests(auth -> auth
         .requestMatchers(
