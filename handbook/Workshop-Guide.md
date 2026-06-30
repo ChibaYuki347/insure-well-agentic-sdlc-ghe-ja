@@ -63,12 +63,13 @@ npm --version         # 9+
 
 **Required VS Code Extensions** (install from Marketplace `Cmd+Shift+X`):
 
-- GitHub Copilot
 - GitHub Copilot Chat
-- GitHub Pull Requests and Issues
+- GitHub Pull Requests
 - Extension Pack for Java
 - Spring Boot Extension Pack
 - ES7+ React/Redux/React-Native snippets
+
+> **Extension notes (2025):** `GitHub Copilot` is no longer installed on its own — installing **`GitHub Copilot Chat`** automatically pulls in the `GitHub Copilot` extension (they are integrated). **`GitHub Pull Requests`** is the renamed `GitHub Pull Requests and Issues`; issue features are still included.
 
 **Accounts & Access:**
 
