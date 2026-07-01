@@ -4,6 +4,8 @@ import './App.css';
 import Navigation from './components/Navigation';
 import Dashboard from './components/Dashboard';
 import Claims from './components/Claims';
+import Login from './components/Login';
+import { AuthProvider, useAuth } from './context/AuthContext';
 
 // API base URL.
 // - Local dev & GitHub Codespaces: leave unset to use the relative "/api" path,
@@ -13,7 +15,18 @@ import Claims from './components/Claims';
 // - Override with REACT_APP_API_BASE_URL if you need to point at a different host.
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || '/api';
 
-function App() {
+// Attach auth token to all outgoing API requests.
+axios.interceptors.request.use((config) => {
+  const token = localStorage.getItem('insurewell_token');
+  if (token) {
+    config.headers = config.headers || {};
+    config.headers['Authorization'] = 'Bearer ' + token;
+  }
+  return config;
+});
+
+function AppContent() {
+  const { isAuthenticated, logout } = useAuth();
   const [currentPage, setCurrentPage] = useState('dashboard');
   const [policies, setPolicies] = useState([]);
   const [claims, setClaims] = useState([]);
@@ -21,8 +34,12 @@ function App() {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    fetchData();
-  }, []);
+    if (isAuthenticated) {
+      fetchData();
+    } else {
+      setLoading(false);
+    }
+  }, [isAuthenticated]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const fetchData = async () => {
     try {
@@ -35,7 +52,11 @@ function App() {
       setClaims(claimsRes.data);
       setError(null);
     } catch (err) {
-      setError('バックエンドからデータを取得できませんでした。Spring Boot サーバーがポート 8080 で起動しているか確認してください。');
+      if (err.response?.status === 401) {
+        logout();
+      } else {
+        setError('バックエンドからデータを取得できませんでした。Spring Boot サーバーがポート 8080 で起動しているか確認してください。');
+      }
       console.error(err);
     } finally {
       setLoading(false);
@@ -46,10 +67,14 @@ function App() {
     fetchData();
   };
 
+  if (!isAuthenticated) {
+    return <Login />;
+  }
+
   if (loading) {
     return (
       <div className="app">
-        <Navigation currentPage={currentPage} setCurrentPage={setCurrentPage} />
+        <Navigation currentPage={currentPage} setCurrentPage={setCurrentPage} onLogout={logout} />
         <main className="main-content">
           <div className="loader">読み込み中…</div>
         </main>
@@ -60,7 +85,7 @@ function App() {
   if (error) {
     return (
       <div className="app">
-        <Navigation currentPage={currentPage} setCurrentPage={setCurrentPage} />
+        <Navigation currentPage={currentPage} setCurrentPage={setCurrentPage} onLogout={logout} />
         <main className="main-content">
           <div className="error-banner">{error}</div>
         </main>
@@ -70,7 +95,7 @@ function App() {
 
   return (
     <div className="app">
-      <Navigation currentPage={currentPage} setCurrentPage={setCurrentPage} />
+      <Navigation currentPage={currentPage} setCurrentPage={setCurrentPage} onLogout={logout} />
       <main className="main-content">
         {currentPage === 'dashboard' && (
           <Dashboard
@@ -90,6 +115,14 @@ function App() {
         )}
       </main>
     </div>
+  );
+}
+
+function App() {
+  return (
+    <AuthProvider>
+      <AppContent />
+    </AuthProvider>
   );
 }
 

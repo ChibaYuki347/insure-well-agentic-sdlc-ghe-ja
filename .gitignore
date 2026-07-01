@@ -4,6 +4,7 @@ src/frontend/node_modules/
 src/frontend/build/
 src/frontend/test-results/
 src/frontend/playwright-report/
+src/frontend/playwright/.auth/
 
 # Java / Spring Boot
 *.class

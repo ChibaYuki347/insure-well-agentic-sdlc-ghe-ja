@@ -225,7 +225,7 @@ function Dashboard({ policies, claims, onRefresh, apiBase }) {
           <div className="modal-content" onClick={e => e.stopPropagation()} data-testid="policy-modal">
             <h2>{modalMode === 'add' ? 'ポリシー追加' : 'ポリシー編集'}</h2>
             {error && <div className="alert alert-error" data-testid="policy-form-error">{error}</div>}
-            <form onSubmit={handleSavePolicy} data-testid="policy-form">
+            <form onSubmit={handleSavePolicy} noValidate data-testid="policy-form">
               <div className="form-group">
                 <label>契約者名</label>
                 <input

@@ -1,7 +1,7 @@
 import React from 'react';
 import '../styles/Navigation.css';
 
-function Navigation({ currentPage, setCurrentPage }) {
+function Navigation({ currentPage, setCurrentPage, onLogout }) {
   return (
     <nav className="navbar" data-testid="navbar">
       <div className="navbar-brand">
@@ -26,6 +26,17 @@ function Navigation({ currentPage, setCurrentPage }) {
             請求
           </button>
         </li>
+        {onLogout && (
+          <li>
+            <button
+              className="nav-link nav-logout"
+              onClick={onLogout}
+              data-testid="nav-logout"
+            >
+              サインアウト
+            </button>
+          </li>
+        )}
       </ul>
     </nav>
   );
