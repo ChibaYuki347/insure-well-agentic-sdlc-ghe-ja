@@ -47,6 +47,13 @@ test('allows a user to sign in and reach the protected dashboard', async () => {
       },
     })
     .mockRejectedValueOnce({ response: { status: 401 } })
+    .mockResolvedValueOnce({
+      data: {
+        headerName: 'X-CSRF-TOKEN',
+        parameterName: '_csrf',
+        token: 'csrf-token-2',
+      },
+    })
     .mockResolvedValueOnce({ data: defaultPolicies })
     .mockResolvedValueOnce({ data: defaultClaims });
 
@@ -84,7 +91,14 @@ test('shows a login error when credentials are invalid', async () => {
         token: 'csrf-token',
       },
     })
-    .mockRejectedValueOnce({ response: { status: 401 } });
+    .mockRejectedValueOnce({ response: { status: 401 } })
+    .mockResolvedValueOnce({
+      data: {
+        headerName: 'X-CSRF-TOKEN',
+        parameterName: '_csrf',
+        token: 'csrf-token-2',
+      },
+    });
 
   axios.post.mockRejectedValueOnce({
     response: {
@@ -145,7 +159,14 @@ test('signs out and returns to the login screen', async () => {
       },
     })
     .mockResolvedValueOnce({ data: defaultPolicies })
-    .mockResolvedValueOnce({ data: defaultClaims });
+    .mockResolvedValueOnce({ data: defaultClaims })
+    .mockResolvedValueOnce({
+      data: {
+        headerName: 'X-CSRF-TOKEN',
+        parameterName: '_csrf',
+        token: 'csrf-token-2',
+      },
+    });
 
   axios.post.mockResolvedValueOnce({ data: { message: 'Signed out' } });
 

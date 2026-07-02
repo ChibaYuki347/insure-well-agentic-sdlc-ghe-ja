@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import axios from 'axios';
 import './App.css';
 import Navigation from './components/Navigation';
 import Dashboard from './components/Dashboard';
 import Claims from './components/Claims';
 import AuthScreen from './components/AuthScreen';
+import { buildCsrfHeaders } from './csrf';
 
 // API base URL.
 // - Local dev & GitHub Codespaces: leave unset to use the relative "/api" path,
@@ -15,6 +16,10 @@ import AuthScreen from './components/AuthScreen';
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || '/api';
 
 axios.defaults.withCredentials = true;
+// Spring Security returns an exposed CSRF token that must be echoed back.
+// Disable axios cookie-based XSRF auto-header to avoid sending the raw cookie token.
+axios.defaults.xsrfCookieName = null;
+axios.defaults.xsrfHeaderName = null;
 
 const AUTH_CHECK_ERROR = '認証状態を確認できませんでした。バックエンドが起動しているか確認してください。';
 const LOAD_ERROR = 'バックエンドからデータを取得できませんでした。Spring Boot サーバーがポート 8080 で起動しているか確認してください。';
@@ -30,10 +35,6 @@ function App() {
   const [authError, setAuthError] = useState('');
   const [dataError, setDataError] = useState('');
 
-  useEffect(() => {
-    initializeSession();
-  }, []);
-
   const resetAppData = () => {
     setPolicies([]);
     setClaims([]);
@@ -48,7 +49,7 @@ function App() {
     setAuthError(SESSION_EXPIRED_ERROR);
   };
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     setLoadingData(true);
     try {
       const [policiesRes, claimsRes] = await Promise.all([
@@ -69,9 +70,9 @@ function App() {
     } finally {
       setLoadingData(false);
     }
-  };
+  }, []);
 
-  const initializeSession = async () => {
+  const initializeSession = useCallback(async () => {
     setAuthStatus('checking');
     try {
       await axios.get(`${API_BASE_URL}/auth/csrf`);
@@ -94,15 +95,22 @@ function App() {
       setAuthError(AUTH_CHECK_ERROR);
       console.error(err);
     }
-  };
+  }, [fetchData]);
+
+  useEffect(() => {
+    initializeSession();
+  }, [initializeSession]);
 
   const handleSignIn = async ({ username, password }) => {
     setAuthError('');
 
     try {
+      const csrfHeaders = await buildCsrfHeaders(API_BASE_URL);
       const response = await axios.post(`${API_BASE_URL}/auth/login`, {
         username,
         password,
+      }, {
+        headers: csrfHeaders,
       });
 
       setCurrentUser(response.data.user);
@@ -118,7 +126,10 @@ function App() {
 
   const handleSignOut = async () => {
     try {
-      await axios.post(`${API_BASE_URL}/auth/logout`);
+      const csrfHeaders = await buildCsrfHeaders(API_BASE_URL);
+      await axios.post(`${API_BASE_URL}/auth/logout`, {}, {
+        headers: csrfHeaders,
+      });
     } catch (err) {
       console.error(err);
     } finally {

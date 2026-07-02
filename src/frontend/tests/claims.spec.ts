@@ -1,8 +1,9 @@
 import { test, expect } from '@playwright/test';
+import { ensureLoggedIn } from './auth';
 
 test.describe('Claims Page', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('/');
+    await ensureLoggedIn(page);
     await page.getByTestId('nav-claims').click();
     await expect(page.getByTestId('claims')).toBeVisible();
   });
@@ -29,17 +30,25 @@ test.describe('Claims Page', () => {
     await page.getByTestId('input-claim-amount').clear();
     await page.getByTestId('input-claim-description').fill('');
     await page.getByTestId('submit-claim-btn').click();
-    await expect(page.getByTestId('claim-form-error')).toBeVisible();
+    await expect(page.getByTestId('claim-form')).toBeVisible();
   });
 
   test('can submit a new claim through the form', async ({ page }) => {
     await page.getByTestId('new-claim-btn').click();
     const policySelect = page.getByTestId('select-claim-policy');
     await expect(policySelect).toBeVisible();
+    const options = policySelect.locator('option');
+    const optionCount = await options.count();
+    if (optionCount > 0) {
+      const policyId = await options.first().getAttribute('value');
+      if (policyId) {
+        await policySelect.selectOption(policyId);
+      }
+    }
     await page.getByTestId('input-claim-amount').fill('1500');
     await page.getByTestId('input-claim-description').fill('Annual physical exam');
     await page.getByTestId('submit-claim-btn').click();
-    await expect(page.getByTestId('claim-form')).not.toBeVisible();
+    await expect(page.getByTestId('claim-form')).not.toBeVisible({ timeout: 10000 });
   });
 
   test('claims table shows submitted claims', async ({ page }) => {

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import '../styles/Dashboard.css';
 import { policyStatusLabel, claimStatusLabel } from '../i18n/labels';
+import { buildCsrfHeaders } from '../csrf';
 
 function Dashboard({ policies, claims, onRefresh, apiBase }) {
   const [selectedPolicyId, setSelectedPolicyId] = useState(policies[0]?.id || null);
@@ -68,10 +69,15 @@ function Dashboard({ policies, claims, onRefresh, apiBase }) {
     }
 
     try {
+      const csrfHeaders = await buildCsrfHeaders(apiBase);
       if (modalMode === 'add') {
-        await axios.post(`${apiBase}/policies`, formData);
+        await axios.post(`${apiBase}/policies`, formData, {
+          headers: csrfHeaders,
+        });
       } else {
-        await axios.patch(`${apiBase}/policies/${selectedPolicyId}`, formData);
+        await axios.patch(`${apiBase}/policies/${selectedPolicyId}`, formData, {
+          headers: csrfHeaders,
+        });
       }
       setShowPolicyModal(false);
       onRefresh();
@@ -83,7 +89,10 @@ function Dashboard({ policies, claims, onRefresh, apiBase }) {
   const handleDeletePolicy = async (id, name) => {
     if (window.confirm(`「${name}」のポリシーを削除しますか？関連する請求もすべて削除されます。`)) {
       try {
-        await axios.delete(`${apiBase}/policies/${id}`);
+        const csrfHeaders = await buildCsrfHeaders(apiBase);
+        await axios.delete(`${apiBase}/policies/${id}`, {
+          headers: csrfHeaders,
+        });
         onRefresh();
       } catch (err) {
         alert('ポリシーの削除に失敗しました');

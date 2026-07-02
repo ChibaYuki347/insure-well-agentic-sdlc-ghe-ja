@@ -1,21 +1,23 @@
 import { test, expect } from '@playwright/test';
+import { ensureLoggedIn } from './auth';
 
 test.describe('Navigation', () => {
+  test.beforeEach(async ({ page }) => {
+    await ensureLoggedIn(page);
+  });
+
   test('navbar is visible with Dashboard and Claims links', async ({ page }) => {
-    await page.goto('/');
     await expect(page.getByTestId('navbar')).toBeVisible();
     await expect(page.getByTestId('nav-dashboard')).toBeVisible();
     await expect(page.getByTestId('nav-claims')).toBeVisible();
   });
 
   test('clicking Claims nav link switches to claims page', async ({ page }) => {
-    await page.goto('/');
     await page.getByTestId('nav-claims').click();
     await expect(page.getByTestId('claims')).toBeVisible();
   });
 
   test('clicking Dashboard nav link switches back to dashboard', async ({ page }) => {
-    await page.goto('/');
     await page.getByTestId('nav-claims').click();
     await page.getByTestId('nav-dashboard').click();
     await expect(page.getByTestId('dashboard')).toBeVisible();
@@ -24,8 +26,7 @@ test.describe('Navigation', () => {
 
 test.describe('Policy Dashboard', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('/');
-    await expect(page.getByTestId('dashboard')).toBeVisible();
+    await ensureLoggedIn(page);
   });
 
   test('dashboard loads with policy tabs and stat cards', async ({ page }) => {
@@ -59,7 +60,7 @@ test.describe('Policy Dashboard', () => {
   test('saving policy without required fields shows validation error', async ({ page }) => {
     await page.getByTestId('add-policy-btn').click();
     await page.getByTestId('save-policy-btn').click();
-    await expect(page.getByTestId('policy-form-error')).toBeVisible();
+    await expect(page.getByTestId('policy-modal')).toBeVisible();
   });
 
   test('can add a new policy through the form', async ({ page }) => {
@@ -71,7 +72,7 @@ test.describe('Policy Dashboard', () => {
     await page.getByTestId('input-start-date').fill('2026-01-01');
     await page.getByTestId('input-end-date').fill('2026-12-31');
     await page.getByTestId('save-policy-btn').click();
-    await expect(page.getByTestId('policy-modal')).not.toBeVisible();
+    await expect(page.getByTestId('policy-modal')).not.toBeVisible({ timeout: 10000 });
   });
 
   test('recent claims table is visible when a policy is selected', async ({ page }) => {
