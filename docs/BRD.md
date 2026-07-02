@@ -14,6 +14,8 @@ The current application provides:
 - REST APIs for policy and claim operations
 - Seeded sample data backed by an in-memory H2 database
 
+The current README also describes optional claim file upload support, but the backend controller and frontend form do not yet expose a working attachment input or persistence path.
+
 The current application does not provide:
 - Authentication or authorization
 - Distinct user roles such as policyholder, claims adjuster, and admin
@@ -61,7 +63,7 @@ Health insurance servicing requires secure access, transparent claim workflows, 
 ## 8. Key Gaps Identified
 - No user accounts, login flow, or role-based access
 - Any user can currently create, update, or delete policies and claims
-- Claim attachments are represented in data but not fully handled in the API/UI workflow
+- Claim attachments are only partially described in documentation and are not fully handled in the API/UI workflow
 - No notifications for claim submission, approval, rejection, or requests for more information
 - No reporting dashboard for administrators or operations stakeholders
 - No search, sort, pagination, or saved filters for larger datasets
