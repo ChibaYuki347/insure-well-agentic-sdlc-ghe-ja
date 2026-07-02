@@ -5,6 +5,8 @@ import App from './App';
 
 jest.mock('axios');
 
+const defaultAdminPassword = () => 'insurewell-default-admin';
+
 const defaultPolicies = [
   {
     id: 'POL-2024-001',
@@ -58,7 +60,7 @@ test('allows a user to sign in and reach the protected dashboard', async () => {
   expect(await screen.findByTestId('auth-screen')).toBeInTheDocument();
 
   fireEvent.change(screen.getByTestId('auth-username'), { target: { value: 'admin' } });
-  fireEvent.change(screen.getByTestId('auth-password'), { target: { value: 'Admin123!' } });
+  fireEvent.change(screen.getByTestId('auth-password'), { target: { value: defaultAdminPassword() } });
   fireEvent.click(screen.getByTestId('auth-submit-btn'));
 
   expect(await screen.findByTestId('dashboard')).toBeInTheDocument();

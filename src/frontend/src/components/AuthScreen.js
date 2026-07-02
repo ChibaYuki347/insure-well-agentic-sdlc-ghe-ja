@@ -39,7 +39,7 @@ function AuthScreen({ onSignIn, error }) {
         </div>
 
         <div className="auth-note">
-          <strong>Default admin:</strong> admin / Admin123!
+          <strong>Default admin:</strong> admin (local seed account)
         </div>
 
         {error && <div className="alert alert-error" data-testid="auth-error">{error}</div>}

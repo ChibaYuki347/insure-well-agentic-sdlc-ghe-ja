@@ -1,6 +1,7 @@
 package com.insurewell.auth;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.insurewell.config.SeedCredentials;
 import com.insurewell.dto.LoginRequest;
 import com.insurewell.repository.UserRepository;
 import org.junit.jupiter.api.Test;
@@ -82,7 +83,7 @@ class AuthenticationIntegrationTest {
   private MockHttpSession signInAsDefaultAdmin() throws Exception {
     String payload = objectMapper.writeValueAsString(LoginRequest.builder()
       .username("admin")
-      .password("Admin123!")
+      .password(SeedCredentials.defaultAdminPassword())
       .build());
 
     return (MockHttpSession) Objects.requireNonNull(mockMvc.perform(post("/api/auth/login")

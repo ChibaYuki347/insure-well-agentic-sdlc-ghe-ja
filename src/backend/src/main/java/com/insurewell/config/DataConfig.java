@@ -35,7 +35,7 @@ public class DataConfig {
       if (!userRepo.existsByUsername("admin")) {
         userRepo.save(User.builder()
           .username("admin")
-          .passwordHash(passwordEncoder.encode("Admin123!"))
+          .passwordHash(passwordEncoder.encode(SeedCredentials.defaultAdminPassword()))
           .role("ADMIN")
           .displayName("Default Admin")
           .enabled(true)
