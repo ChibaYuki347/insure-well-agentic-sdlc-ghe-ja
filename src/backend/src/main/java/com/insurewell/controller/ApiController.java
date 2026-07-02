@@ -21,6 +21,9 @@ public class ApiController {
       "status", "ok",
       "endpoints", Map.of(
         "health", "/api/health",
+        "authLogin", "/api/auth/login",
+        "authMe", "/api/auth/me",
+        "authLogout", "/api/auth/logout",
         "policies", "/api/policies",
         "claims", "/api/claims"
       )

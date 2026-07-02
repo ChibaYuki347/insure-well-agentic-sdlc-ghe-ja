@@ -1,292 +1,293 @@
 # InsureWell High-Level Design
 
 ## 1. Overview
-InsureWell is a React + Spring Boot application that provides policy management and claim lifecycle capabilities through:
-- A React frontend for dashboard and claims workflows.
-- REST APIs for policy and claim CRUD operations.
-- File upload support for claim attachments.
+InsureWell is a two-tier insurance servicing application built with a React frontend and a Spring Boot REST backend. The current implementation supports policy browsing and maintenance, claim submission, claim status updates, and seeded H2-backed demo data.
 
-This HLD is derived from the current codebase implementation and is intended to serve as the baseline architecture for future iterations.
+This HLD describes the current logical architecture and the near-term design baseline for extending the product toward role-aware claim servicing.
 
-## 2. Scope and Goals
+## 2. Scope
 ### In scope
 - Component boundaries and responsibilities.
-- Data flow across browser, React UI, Spring Boot APIs, H2-backed persistence, and attachment handling.
-- Claims upload pipeline.
-- REST API surface and behavior expectations.
-- Validation, error handling, observability, and testing strategy.
+- React to Spring Boot request/response flow.
+- JPA persistence layer and repository responsibilities.
+- Claims submission and claim status update API surface.
+- Validation, error handling, observability, and test strategy.
 
 ### Out of scope
-- Authentication and authorization model (not currently implemented in code).
-- External integrations (payments, notifications, external provider systems).
-- Multi-service decomposition.
+- Authentication and authorization workflows.
+- External integrations such as notifications, billing, or provider networks.
+- Multi-service decomposition or deployment topology.
 
 ## 3. Architecture Summary
 ### Runtime stack
-- React 18 frontend served by the development server during local development.
-- Java 17 Spring Boot 3.1.5 backend process.
-- H2 in-memory database for local development.
-- Multipart attachment handling exposed through REST endpoints.
+- React 18 frontend using Axios for API calls.
+- Spring Boot 3.x backend running on Java 17.
+- Spring Data JPA with an H2 in-memory database for local development.
+- CORS enabled for local browser access and proxy-based development.
 
-### Component diagram (logical)
-```text
-+----------------------+      HTTP(S)       +--------------------------------+
-| React Frontend       | <----------------> | Spring Boot REST API           |
-| - Dashboard view     |                    |                                |
-| - Claims view        |                    |  +--------------------------+  |
-| - Axios clients      |                    |  | PolicyController         |  |
-+----------------------+                    |  | /api/policies*           |  |
-                                            |  +--------------------------+  |
-                                            |  +--------------------------+  |
-                                            |  | ClaimController          |  |
-                                            |  | /api/claims*             |  |
-                                            |  +--------------------------+  |
-                                            |  +--------------------------+  |
-                                            |  | Services / Validation    |  |
-                                            |  | DTO mapping / JPA        |  |
-                                            |  +--------------------------+  |
-                                            +---------------+----------------+
-                                                            |
-                                                            v
-                                             +-------------------------------+
-                                             | H2 In-Memory Database          |
-                                             | tables: policies, claims       |
-                                             +-------------------------------+
+### Component diagram
+```mermaid
+flowchart LR
+  Browser[User Browser]
+  React[React SPA\nApp + Navigation + Dashboard + Claims]
+  Axios[Axios API Client]
+  API[Spring Boot REST API]
+  ApiController[ApiController\n/api + /api/health]
+  PolicyController[PolicyController\n/api/policies]
+  ClaimController[ClaimController\n/api/claims]
+  PolicyRepo[PolicyRepository]
+  ClaimRepo[ClaimRepository]
+  PolicyEntity[Policy JPA Entity]
+  ClaimEntity[Claim JPA Entity]
+  H2[(H2 In-Memory DB)]
+  Seed[DataConfig Seed Data]
+
+  Browser --> React --> Axios --> API
+  API --> ApiController
+  API --> PolicyController
+  API --> ClaimController
+  PolicyController --> PolicyRepo --> PolicyEntity --> H2
+  ClaimController --> ClaimRepo --> ClaimEntity --> H2
+  Seed --> PolicyRepo
+  Seed --> ClaimRepo
 ```
 
 ## 4. Module Boundaries and Responsibilities
-### 4.1 Frontend Presentation Module
-Responsibilities:
-- Render dashboard and claims experiences in React.
-- Fetch policy and claim data from REST endpoints.
-- Support client-side policy switching and claims filtering.
-
+### 4.1 Frontend presentation module
 Owned components:
+- `App`
+- `Navigation`
 - `Dashboard`
 - `Claims`
-- `Navigation`
 
-### 4.2 Claims API Module
 Responsibilities:
-- List, create, update status, and delete claims.
-- Validate claim payloads and enforce status state values.
-- Process optional file uploads for claim creation.
+- Load policies and claims from the REST API.
+- Render dashboard summaries, policy detail cards, and claim tables.
+- Drive create, edit, delete, and status update interactions.
+- Maintain local UI state for active page, selected policy, filters, and form dialogs.
 
-Owned routes:
-- GET /api/claims
-- POST /api/claims
-- PATCH /api/claims/<cid>/status
-- DELETE /api/claims/<cid>
+### 4.2 API entry module
+Owned controller:
+- `ApiController`
 
-### 4.3 Policies API Module
 Responsibilities:
-- List, read, create, update, and delete policies.
-- Enforce required fields and business validations.
-- Cascade policy deletion to dependent claims through the persistence layer.
+- Expose `/api` and `/api/health` endpoints for basic service discovery and liveness.
+- Provide a lightweight status payload for local checks.
 
-Owned routes:
-- GET /api/policies
-- GET /api/policies/<pid>
-- POST /api/policies
-- PATCH /api/policies/<pid>
-- DELETE /api/policies/<pid>
+### 4.3 Policies API module
+Owned controller:
+- `PolicyController`
 
-### 4.4 Persistence Module
 Responsibilities:
-- Manage JPA repositories and entity persistence.
-- Use H2 for local development data storage.
-- Seed initial sample data on application startup.
+- List, create, update, fetch, and delete policies.
+- Validate policy create/update payloads before persistence.
+- Return DTOs rather than JPA entities to the frontend.
 
-Primary functions:
+### 4.4 Claims API module
+Owned controller:
+- `ClaimController`
+
+Responsibilities:
+- List claims globally or filtered by policy.
+- Create claims against an existing policy.
+- Update claim status.
+- Delete claims.
+- Enforce claim status values and policy existence checks.
+
+### 4.5 Persistence module
+Owned artifacts:
+- `Policy`
+- `Claim`
 - `PolicyRepository`
 - `ClaimRepository`
 - `DataConfig`
 
-### 4.5 Upload Storage Module
 Responsibilities:
-- Validate allowed file extensions.
-- Accept multipart file uploads for claim creation.
-- Persist attachment metadata with the claim record.
+- Map the logical model to JPA entities.
+- Persist and retrieve policies and claims.
+- Seed demo data during startup when the database is empty.
 
 ## 5. Data Flow
-### 5.1 Dashboard and Claims Page Flow
-1. Browser loads the React application.
-2. React components request policies and claims from the backend API.
-3. Spring Boot controllers fetch entities via repositories.
-4. DTOs are returned as JSON payloads.
-5. React updates the UI with policy and claim state.
+### 5.1 Initial page load
+1. The browser loads the React SPA.
+2. `App` issues parallel `GET` requests to `/api/policies` and `/api/claims`.
+3. The frontend receives DTO arrays and stores them in component state.
+4. `Dashboard` and `Claims` render from the shared in-memory data set.
 
-### 5.2 API Request Flow
-1. Client sends JSON or multipart request to REST endpoint.
-2. Route validates required fields and data types.
-3. Controller delegates persistence to JPA repositories.
-4. Transaction commits on success for mutating operations.
-5. Route returns JSON payload and HTTP status.
+### 5.2 Claim submission flow
+1. The user opens the claims screen and selects a policy.
+2. The form posts multipart form fields to `POST /api/claims`.
+3. `ClaimController` validates `policy_id`, `amount`, and `description`.
+4. The controller checks policy existence via `PolicyRepository`.
+5. A new `Claim` entity is built with status `Pending`, timestamps, and an auto-generated id.
+6. `ClaimRepository.save(...)` persists the claim to H2.
+7. The backend returns the created `ClaimDTO` with HTTP 201.
 
-### 5.3 Claims Upload Pipeline
-1. Client submits multipart form to POST /api/claims.
-2. Server checks required form fields:
-   - policy_id
-   - amount
-   - description
-3. Server validates:
-   - policy exists
-   - amount is numeric and > 0
-4. If file exists:
-   - extension must be one of pdf, jpg, jpeg, png
-   - filename sanitized
-   - binary saved to uploads directory with millisecond prefix
-5. Server inserts claim record into H2 with:
-   - generated claim id
-   - status default Pending
-   - uploaded file name metadata when present
-6. Server returns created claim JSON with status 201.
+### 5.3 Claim status update flow
+1. The user changes the claim status from the claims table.
+2. The frontend sends `PATCH /api/claims/{id}/status` with JSON body `{ "status": "Approved" }`.
+3. `ClaimController` validates the target status value.
+4. The controller loads the claim from `ClaimRepository`.
+5. The claim status and `updatedAt` timestamp are saved.
+6. The backend returns the updated `ClaimDTO` with HTTP 200.
 
-## 6. REST API Surface
+### 5.4 Policy maintenance flow
+1. The dashboard loads policy cards from `GET /api/policies`.
+2. Create and edit actions send JSON payloads to the policy endpoints.
+3. Policy deletion removes only the policy row; claim rows are not automatically cascaded in the current controller flow.
 
-| Method | Path | Purpose | Success | Key error responses |
+## 6. JPA Persistence Layer
+### 6.1 Entity model
+- `Policy` maps to the `policies` table.
+- `Claim` maps to the `claims` table.
+
+### 6.2 Repository model
+- `PolicyRepository extends JpaRepository<Policy, String>`.
+- `ClaimRepository extends JpaRepository<Claim, String>`.
+
+Repository query methods currently used by the application:
+- `findAllByOrderByCreatedAtAsc()` for policy list ordering.
+- `findAllByOrderBySubmittedAtDesc()` for claim list ordering.
+- `findByPolicyIdOrderBySubmittedAtDesc(policyId)` for policy-scoped claim views.
+
+### 6.3 Persistence behavior
+- IDs are application-generated strings, not database identities.
+- `Policy` and `Claim` both use `@PrePersist` to fill missing timestamps.
+- `Claim` also uses `@PreUpdate` to refresh `updatedAt`.
+- Seed data is inserted by `DataConfig` only when the repository is empty.
+
+## 7. Claims Submission and Update API Surface
+### 7.1 Endpoints
+| Method | Path | Request shape | Success | Notes |
 |---|---|---|---|---|
-| GET | /api/health | Liveness check | 200 | None |
-| GET | /api/policies | List policies | 200 | None |
-| GET | /api/policies/<pid> | Get policy | 200 | 404 policy not found |
-| POST | /api/policies | Create policy | 201 | 400 validation errors |
-| PATCH | /api/policies/<pid> | Update policy fields | 200 | 400 invalid/no fields, 404 not found |
-| DELETE | /api/policies/<pid> | Delete policy and its claims | 204 | 404 not found |
-| GET | /api/claims | List claims (optional policy filter) | 200 | None |
-| POST | /api/claims | Create claim with optional file | 201 | 400 validation/file errors, 404 policy not found |
-| PATCH | /api/claims/<cid>/status | Update claim status | 200 | 400 invalid status, 404 claim not found |
-| DELETE | /api/claims/<cid> | Delete claim | 204 | 404 claim not found |
+| GET | /api/claims | Optional query `policy_id` | 200 | Returns claim list ordered by submitted time descending |
+| POST | /api/claims | Multipart form fields `policy_id`, `amount`, `description` | 201 | Creates a claim with status `Pending` |
+| PATCH | /api/claims/{id}/status | JSON body `{ "status": "Pending" | "Approved" | "Rejected" }` | 200 | Updates claim status and `updatedAt` |
+| DELETE | /api/claims/{id} | None | 204 | Deletes a claim if it exists |
 
-### Request/response notes
-- POST /api/claims uses multipart form data.
-- POST/PATCH policy endpoints use JSON payloads.
-- Error response model is consistent JSON object with error field.
+### 7.2 Response model
+Claims are serialized as `ClaimDTO` with:
+- `id`
+- `policyId`
+- `amount`
+- `description`
+- `status`
+- `fileName`
+- `submittedAt`
+- `updatedAt`
 
-## 7. Validation, Error Handling, and Observability
+### 7.3 Current behavior notes
+- The current backend accepts claim submission without attachment upload handling in the controller.
+- Status updates are constrained to three values only.
+- Missing claim or policy resources return HTTP 404.
+
+## 8. Validation, Error Handling, and Observability
 ### Validation rules
-- Claim creation:
-  - policy_id required and must exist.
-  - amount required, numeric, positive.
-  - description required.
-  - upload extension restricted to allowed set.
-- Claim status update:
-  - status must be one of Pending, Approved, Rejected.
-- Policy creation/update:
-  - required fields validated for create.
-  - coverage amount must be positive numeric.
-  - status must be active or inactive.
+- Claim create requires a non-empty `policy_id`, positive `amount`, and non-empty `description`.
+- Claim status update accepts only `Pending`, `Approved`, or `Rejected`.
+- Policy create/update requires holder name, plan name, and positive coverage amount.
+- Policy status should remain within the current active/inactive domain.
 
-### Error handling behavior
-- 400 for malformed or invalid business input.
-- 404 for missing policy or claim resources.
-- 204 for successful delete operations with empty body.
+### Error handling
+- HTTP 400 for invalid request data.
+- HTTP 404 for missing policy or claim records.
+- HTTP 201 for successful claim or policy creation.
+- HTTP 204 for successful deletions.
 
 ### Observability expectations
-Current state:
-- Minimal explicit logging; relies primarily on Spring Boot default request and application logs.
+Current implementation relies mostly on framework defaults.
 
-Recommended baseline enhancements:
-- Structured request logging with route, method, status, latency.
-- Error event logging for validation and DB failures.
-- Correlation id per request for troubleshooting.
-- Basic metrics:
-  - request count by route/status
-  - p95 latency by route
-  - claim upload success/failure counts
+Recommended baseline:
+- Structured request logging with route, method, status, and latency.
+- Correlation id propagation for API calls.
+- Error logging for validation failures and persistence exceptions.
+- Basic metrics for request volume, latency, and failed claim submissions.
 
-## 8. Non-Functional Considerations
+## 9. Non-Functional Considerations
 ### Security
-- Input and extension validation implemented.
-- Filename sanitization implemented.
-- No authentication/authorization currently; all routes are publicly accessible.
-- Future phase should enforce role-based access and CSRF protections for browser workflows.
+- The current codebase exposes all routes publicly.
+- CORS is permissive for local development.
+- Future releases should add authentication, role-based authorization, and request hardening.
 
 ### Performance
-- H2 is sufficient for local development and demos; a production database should replace it for shared environments.
-- Query patterns are straightforward and index usage should be reviewed as data grows.
+- H2 is appropriate for local development and seeded demos.
+- The current list queries are simple and deterministic.
+- Larger datasets will require pagination and index review.
 
 ### Reliability
-- Local file system uploads create dependency on host disk durability.
-- For multi-node deployment, move uploads to object storage.
+- Local in-memory data is reset on application restart.
+- The current architecture is suitable for single-node development and workshop use.
 
-## 9. Migration Notes
-Current schema is managed in-code through JPA entities and startup seed configuration.
+## 10. Migration Notes
+- The schema is currently derived from JPA entities and startup seed data.
+- Non-trivial schema changes should move to versioned migrations before production hardening.
+- Attachment metadata and audit history should be modeled explicitly before expanding claim workflows.
 
-Migration strategy recommendations:
-1. Introduce explicit migration tooling (for example Flyway or Liquibase) before adding non-trivial schema changes.
-2. Backfill scripts should be idempotent and environment-safe.
-3. Add schema version table to track upgrade state.
-
-## 10. Test Strategy for Critical Flows
+## 11. Test Strategy for Critical Flows
 ### Critical flows
-- Create claim (with and without file).
-- Claim status transitions.
-- Policy create/update/delete lifecycle.
-- Claims listing with policy filter.
-- Error paths for invalid input and missing resources.
+- Load dashboard with seeded data.
+- Submit a claim for an existing policy.
+- Reject invalid claim input.
+- Update claim status.
+- Delete a claim.
+- Create, update, and delete a policy.
 
 ### Test levels
-- Unit tests for validation helpers and status constraints.
-- API integration tests for each route with positive/negative cases.
-- Upload tests:
-  - allowed file types
-  - disallowed extensions
-  - oversized payload rejection behavior
-- UI smoke tests for dashboard and claims render.
+- Unit tests for validation and mapping helpers.
+- API integration tests for all claim and policy endpoints.
+- Frontend smoke tests for dashboard and claim screen rendering.
+- Regression tests for claim filtering and status transitions.
 
-## 11. Design Decisions and Unresolved Questions
+## 12. Design Decisions and Unresolved Questions
 ### Design decisions
-1. Keep the React + Spring Boot split architecture for current scale and demo simplicity.
-2. Keep H2-backed local development data for low operational overhead in MVP.
-3. Preserve REST-first APIs so the frontend can evolve independently.
+1. Keep the React and Spring Boot split because it matches the current codebase and keeps local development simple.
+2. Keep H2 as the default store for workshop and demo usage.
+3. Use DTOs at the API boundary to keep the frontend isolated from JPA internals.
 
 ### Unresolved questions
-1. Should claim attachments support secure download endpoint and virus scanning?
-2. What are retention and deletion policies for uploaded files?
-3. Is policy deletion expected to hard delete dependent claims or soft delete both entities?
-4. What authentication model and roles are required for production readiness?
+1. Should claims support attachment upload in the controller now, or in a later iteration with explicit file storage?
+2. Should policy deletion cascade through the database or continue to rely on application logic?
+3. What authentication and role model should be applied before moving beyond a workshop demo?
 
-## 12. Traceability Matrix
-
+## 13. Traceability Matrix
 | Feature | HLD module | Data entity |
 |---|---|---|
-| View dashboard and claims | Frontend Presentation Module | policies, claims |
-| Submit claim with attachment | Claims API Module + Upload Storage Module | claims |
-| Update claim status | Claims API Module | claims |
-| Manage policy lifecycle | Policies API Module | policies, claims |
-| Persist and seed baseline data | Persistence Module | policies, claims |
+| React dashboard load | Frontend presentation module | Policy, Claim |
+| Claim submission | Claims API module | Claim, Policy |
+| Claim status update | Claims API module | Claim |
+| Policy maintenance | Policies API module | Policy, Claim |
+| Seeded demo data | Persistence module | Policy, Claim |
 
-## 13. Cloud Delegation Candidates
-1. Add OpenAPI document for all REST endpoints.
-   - Files: docs/openapi.yaml, README.md
+## 14. Cloud Delegation Candidates
+1. Add API contract tests for claim create and status update.
+   - Files: src/backend/src/test/java/com/insurewell/**
    - Effort: M
    - Risk: Low
-   - Acceptance criteria: OpenAPI validates and covers all current API routes/status codes.
+   - Acceptance criteria: positive and negative claim flows are covered for 200/201/400/404 cases.
 
-2. Add automated API contract tests for claims status transitions.
-   - Files: src/backend/src/test/java/com/insurewell/ClaimStatusApiTest.java
-   - Effort: S
-   - Risk: Low
-   - Acceptance criteria: Tests cover valid status updates plus 400/404 negative paths.
-
-3. Add request/response structured logging middleware.
-   - Files: src/backend/src/main/java/com/insurewell/controller/ApiController.java, src/backend/src/main/java/com/insurewell/config/
+2. Add frontend smoke coverage for load, submit, and update interactions.
+   - Files: src/frontend/tests/**
    - Effort: M
-   - Risk: Medium
-   - Acceptance criteria: Every request logs method, path, status, latency, and request id.
+   - Risk: Low
+   - Acceptance criteria: the dashboard and claims pages render and drive the key CRUD paths.
 
-4. Add upload hardening checks.
-   - Files: src/backend/src/main/java/com/insurewell/controller/ClaimController.java, src/backend/src/test/
+3. Add structured API error handling.
+   - Files: src/backend/src/main/java/com/insurewell/controller/**, src/backend/src/main/java/com/insurewell/dto/**
    - Effort: M
    - Risk: Medium
-   - Acceptance criteria: MIME validation and safe size checks are tested for pass/fail paths.
+   - Acceptance criteria: all validation failures return a consistent JSON error shape.
 
-5. Add docs cross-links between BRD, HLD, architecture, and data model.
-   - Files: docs/BRD.md, docs/Epics.md, docs/Features.md, docs/InsureWell_HLD.md, docs/InsureWell_DataModel.md
+4. Add JPA migration notes and schema constraints.
+   - Files: docs/InsureWell_DataModel.md, src/backend/src/main/resources/**
    - Effort: S
    - Risk: Low
-   - Acceptance criteria: Navigable links and traceability references exist across all lifecycle docs.
+   - Acceptance criteria: entity constraints and database-level hardening are documented.
 
-## 14. Recommended Next Agent
-- 3.SDLC Architecture Agent for architecture decision records and formal diagrams.
-- 5.SDLC Dev Agent when implementing approved feature increments from this HLD.
+5. Add request logging and correlation ids.
+   - Files: src/backend/src/main/java/com/insurewell/config/**
+   - Effort: M
+   - Risk: Medium
+   - Acceptance criteria: every request logs method, route, status, and latency with a request id.
+
+## 15. Recommended Next Agent
+3.SDLC Architecture Agent for formal architecture decisions and diagram refinement.

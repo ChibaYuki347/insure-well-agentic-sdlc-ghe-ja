@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import '../styles/Claims.css';
 import { claimStatusLabel } from '../i18n/labels';
+import { buildCsrfHeaders } from '../csrf';
 
 function Claims({ policies, claims, onRefresh, apiBase }) {
   const [filterPolicyId, setFilterPolicyId] = useState('');
@@ -47,7 +48,10 @@ function Claims({ policies, claims, onRefresh, apiBase }) {
       payload.append('amount', String(parseFloat(formData.amount)));
       payload.append('description', formData.description);
 
-      await axios.post(`${apiBase}/claims`, payload);
+      const csrfHeaders = await buildCsrfHeaders(apiBase);
+      await axios.post(`${apiBase}/claims`, payload, {
+        headers: csrfHeaders,
+      });
       setShowForm(false);
       setFormData({
         policy_id: policies[0]?.id || '',
@@ -64,7 +68,10 @@ function Claims({ policies, claims, onRefresh, apiBase }) {
 
   const handleStatusChange = async (claimId, newStatus) => {
     try {
-      await axios.patch(`${apiBase}/claims/${claimId}/status`, { status: newStatus });
+      const csrfHeaders = await buildCsrfHeaders(apiBase);
+      await axios.patch(`${apiBase}/claims/${claimId}/status`, { status: newStatus }, {
+        headers: csrfHeaders,
+      });
       onRefresh();
     } catch (err) {
       alert('請求ステータスの更新に失敗しました');
@@ -74,7 +81,10 @@ function Claims({ policies, claims, onRefresh, apiBase }) {
   const handleDeleteClaim = async (claimId) => {
     if (window.confirm('この請求を削除しますか？')) {
       try {
-        await axios.delete(`${apiBase}/claims/${claimId}`);
+        const csrfHeaders = await buildCsrfHeaders(apiBase);
+        await axios.delete(`${apiBase}/claims/${claimId}`, {
+          headers: csrfHeaders,
+        });
         onRefresh();
       } catch (err) {
         alert('請求の削除に失敗しました');

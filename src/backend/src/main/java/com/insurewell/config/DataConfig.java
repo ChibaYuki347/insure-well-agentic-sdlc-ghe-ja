@@ -2,11 +2,14 @@ package com.insurewell.config;
 
 import com.insurewell.model.Claim;
 import com.insurewell.model.Policy;
+import com.insurewell.model.User;
 import com.insurewell.repository.ClaimRepository;
 import com.insurewell.repository.PolicyRepository;
+import com.insurewell.repository.UserRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
@@ -19,17 +22,26 @@ import java.util.List;
 @Configuration
 public class DataConfig {
 
-  private static String toIsoString(LocalDateTime dt) {
-    return dt.format(DateTimeFormatter.ISO_DATE_TIME) + "Z";
-  }
-
   private static LocalDateTime parseIsoString(String s) {
     return LocalDateTime.parse(s.replace("Z", ""), DateTimeFormatter.ISO_DATE_TIME);
   }
 
   @Bean
-  public CommandLineRunner loadData(PolicyRepository policyRepo, ClaimRepository claimRepo) {
+  public CommandLineRunner loadData(PolicyRepository policyRepo,
+                                    ClaimRepository claimRepo,
+                                    UserRepository userRepo,
+                                    PasswordEncoder passwordEncoder) {
     return args -> {
+      if (!userRepo.existsByUsername("admin")) {
+        userRepo.save(User.builder()
+          .username("admin")
+          .passwordHash(passwordEncoder.encode(SeedCredentials.defaultAdminPassword()))
+          .role("ADMIN")
+          .displayName("Default Admin")
+          .enabled(true)
+          .build());
+      }
+
       // Only seed if empty
       if (policyRepo.count() == 0) {
         LocalDateTime now = LocalDateTime.now(ZoneId.of("UTC"));
