@@ -18,6 +18,7 @@ import java.util.Objects;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -41,6 +42,10 @@ class AuthenticationIntegrationTest {
 
   @Test
   void rejectsProtectedApisUntilUserSignsIn() throws Exception {
+    mockMvc.perform(get("/api/auth/csrf"))
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$.token").isNotEmpty());
+
     mockMvc.perform(get("/api/policies"))
       .andExpect(status().isUnauthorized());
 
@@ -61,7 +66,7 @@ class AuthenticationIntegrationTest {
     mockMvc.perform(get("/api/policies").session(session))
       .andExpect(status().isOk());
 
-    mockMvc.perform(post("/api/auth/logout").session(session))
+    mockMvc.perform(post("/api/auth/logout").with(csrf()).session(session))
       .andExpect(status().isOk());
 
     mockMvc.perform(get("/api/policies").session(session))
@@ -71,6 +76,7 @@ class AuthenticationIntegrationTest {
   @Test
   void rejectsBadCredentials() throws Exception {
     mockMvc.perform(post("/api/auth/login")
+        .with(csrf())
         .contentType(MediaType.APPLICATION_JSON)
         .content(objectMapper.writeValueAsString(Map.of(
           "username", "admin",
@@ -87,6 +93,7 @@ class AuthenticationIntegrationTest {
       .build());
 
     return (MockHttpSession) Objects.requireNonNull(mockMvc.perform(post("/api/auth/login")
+        .with(csrf())
         .contentType(MediaType.APPLICATION_JSON)
         .content(payload))
       .andExpect(status().isOk())

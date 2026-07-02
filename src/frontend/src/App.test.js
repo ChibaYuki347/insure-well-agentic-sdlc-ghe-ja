@@ -39,6 +39,13 @@ beforeEach(() => {
 
 test('allows a user to sign in and reach the protected dashboard', async () => {
   axios.get
+    .mockResolvedValueOnce({
+      data: {
+        headerName: 'X-CSRF-TOKEN',
+        parameterName: '_csrf',
+        token: 'csrf-token',
+      },
+    })
     .mockRejectedValueOnce({ response: { status: 401 } })
     .mockResolvedValueOnce({ data: defaultPolicies })
     .mockResolvedValueOnce({ data: defaultClaims });
@@ -69,7 +76,15 @@ test('allows a user to sign in and reach the protected dashboard', async () => {
 });
 
 test('shows a login error when credentials are invalid', async () => {
-  axios.get.mockRejectedValueOnce({ response: { status: 401 } });
+  axios.get
+    .mockResolvedValueOnce({
+      data: {
+        headerName: 'X-CSRF-TOKEN',
+        parameterName: '_csrf',
+        token: 'csrf-token',
+      },
+    })
+    .mockRejectedValueOnce({ response: { status: 401 } });
 
   axios.post.mockRejectedValueOnce({
     response: {
@@ -92,7 +107,15 @@ test('shows a login error when credentials are invalid', async () => {
 });
 
 test('keeps protected routes hidden until the session is authenticated', async () => {
-  axios.get.mockRejectedValueOnce({ response: { status: 401 } });
+  axios.get
+    .mockResolvedValueOnce({
+      data: {
+        headerName: 'X-CSRF-TOKEN',
+        parameterName: '_csrf',
+        token: 'csrf-token',
+      },
+    })
+    .mockRejectedValueOnce({ response: { status: 401 } });
 
   render(<App />);
 
@@ -103,6 +126,13 @@ test('keeps protected routes hidden until the session is authenticated', async (
 
 test('signs out and returns to the login screen', async () => {
   axios.get
+    .mockResolvedValueOnce({
+      data: {
+        headerName: 'X-CSRF-TOKEN',
+        parameterName: '_csrf',
+        token: 'csrf-token',
+      },
+    })
     .mockResolvedValueOnce({
       data: {
         message: 'Authenticated',

@@ -18,6 +18,7 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.security.web.context.SecurityContextRepository;
+import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -88,6 +89,15 @@ public class AuthController {
       .message("Authenticated")
       .user(toUserDTO(authentication.getName()))
       .build());
+  }
+
+  @GetMapping("/csrf")
+  public ResponseEntity<?> csrf(CsrfToken csrfToken) {
+    return ResponseEntity.ok(Map.of(
+      "headerName", csrfToken.getHeaderName(),
+      "parameterName", csrfToken.getParameterName(),
+      "token", csrfToken.getToken()
+    ));
   }
 
   @PostMapping("/logout")

@@ -74,6 +74,7 @@ function App() {
   const initializeSession = async () => {
     setAuthStatus('checking');
     try {
+      await axios.get(`${API_BASE_URL}/auth/csrf`);
       const meResponse = await axios.get(`${API_BASE_URL}/auth/me`);
       setCurrentUser(meResponse.data.user);
       setAuthStatus('authenticated');
